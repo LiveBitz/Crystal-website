@@ -12,11 +12,16 @@ import Testimonials from "@/components/Testimonials";
 import TopBar from "@/components/TopBar";
 import WhyChooseUs from "@/components/WhyChooseUs";
 
-export default function Home() {
+import { cookies } from "next/headers";
+
+export default async function Home() {
+  const cookieStore = await cookies();
+  const isLoggedIn = cookieStore.has("auth_token");
+
   return (
     <>
       <TopBar />
-      <Header />
+      <Header isLoggedIn={isLoggedIn} />
       <main className="min-h-screen bg-background">
         <Hero />
         <WhyChooseUs />

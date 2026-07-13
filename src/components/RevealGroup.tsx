@@ -14,12 +14,14 @@ export default function RevealGroup({
   y = 24,
   stagger = 0.1,
   duration = 0.6,
+  animationKey,
 }: {
   children: React.ReactNode;
   className?: string;
   y?: number;
   stagger?: number;
   duration?: number;
+  animationKey?: string | number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -49,7 +51,7 @@ export default function RevealGroup({
     }, ref);
 
     return () => ctx.revert();
-  }, [y, stagger, duration]);
+  }, [y, stagger, duration, animationKey]);
 
   return (
     <div ref={ref} className={className}>

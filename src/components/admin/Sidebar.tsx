@@ -17,8 +17,9 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   { href: "/crystal171admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/crystal171admin/orders", label: "Orders", icon: Package },
   { href: "/crystal171admin/hero", label: "Hero Banners", icon: Images },
-  { href: "/crystal171admin/products", label: "Products", icon: Package },
+  { href: "/crystal171admin/products", label: "Products", icon: ShoppingBag },
   { href: "/crystal171admin/categories", label: "Shop By Purpose", icon: ShoppingBag },
   { href: "/crystal171admin/combos", label: "Combo Banners", icon: Sparkles },
   { href: "/crystal171admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },

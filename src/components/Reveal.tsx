@@ -14,12 +14,14 @@ export default function Reveal({
   y = 28,
   delay = 0,
   duration = 0.7,
+  animationKey,
 }: {
   children: React.ReactNode;
   className?: string;
   y?: number;
   delay?: number;
   duration?: number;
+  animationKey?: string | number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -47,7 +49,7 @@ export default function Reveal({
     }, ref);
 
     return () => ctx.revert();
-  }, [y, delay, duration]);
+  }, [y, delay, duration, animationKey]);
 
   return (
     <div ref={ref} className={className}>

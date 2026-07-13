@@ -1,44 +1,75 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ShoppingBag, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingBag, Star, Check } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Product } from "@/lib/products";
 import RevealGroup from "@/components/RevealGroup";
+import WishlistButton from "@/components/WishlistButton";
+import { useCart } from "@/lib/cart";
 
 export default function ProductGrid({ pages }: { pages: Product[][] }) {
   const [page, setPage] = useState(0);
+  const router = useRouter();
+  const { addItem } = useCart();
+  const [loadingIds, setLoadingIds] = useState<string[]>([]);
+  const [addedIds, setAddedIds] = useState<string[]>([]);
 
   const prev = () => setPage((p) => (p - 1 + pages.length) % pages.length);
   const next = () => setPage((p) => (p + 1) % pages.length);
 
-  // Decorative buttons that sit inside the card-link shouldn't trigger navigation.
-  const stop = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    setLoadingIds(prev => [...prev, product.id]);
+    
+    // Check if user is logged in
+    const res = await fetch("/api/auth/me");
+    if (!res.ok) {
+      router.push("/sign-up");
+      return;
+    }
+
+    addItem(product);
+    
+    setLoadingIds(prev => prev.filter(id => id !== product.id));
+    setAddedIds(prev => [...prev, product.id]);
+    
+    setTimeout(() => {
+      setAddedIds(prev => prev.filter(id => id !== product.id));
+    }, 2000);
   };
 
   return (
     <>
-      <RevealGroup className="mt-12 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mt-16 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
+      <RevealGroup
+        animationKey={page}
+        y={16}
+        stagger={0.06}
+        duration={0.7}
+        className="mt-12 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mt-16 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden"
+      >
         {pages[page].map((product) => (
-          <Link
-            key={product.id}
-            href={`/product/${product.slug}`}
-            className="group flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-sage-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-gold-light/60 hover:shadow-[0_12px_28px_rgba(58,31,61,0.14)] sm:w-auto sm:shrink"
-          >
-            <div className="relative aspect-square w-full overflow-hidden bg-sage-100">
-              {product.imageUrl && (
-                <Image
-                  src={product.imageUrl}
-                  alt={product.name}
-                  fill
-                  sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 78vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-              )}
-            </div>
+          <div key={product.id} className="flex w-[78%] shrink-0 snap-start flex-col sm:w-auto sm:shrink">
+            <Link
+              href={`/product/${product.slug}`}
+              className="group flex flex-1 flex-col overflow-hidden rounded-2xl border border-sage-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-gold-light/60 hover:shadow-[0_12px_28px_rgba(58,31,61,0.14)]"
+            >
+              <div className="relative aspect-square w-full overflow-hidden bg-sage-100">
+                <WishlistButton productId={product.id} />
+                {product.imageUrl && (
+                  <Image
+                    src={product.imageUrl}
+                    alt={product.name}
+                    fill
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 78vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                )}
+              </div>
 
             <div className="flex flex-1 flex-col gap-2.5 p-5">
               <div className="flex items-center gap-1 text-gold">
@@ -67,14 +98,31 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
               </div>
 
               <button
-                onClick={stop}
-                className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-primary py-3 text-xs font-semibold tracking-wide text-white uppercase transition-colors duration-200 hover:bg-primary-dark"
+                onClick={(e) => handleAddToCart(e, product)}
+                disabled={loadingIds.includes(product.id) || addedIds.includes(product.id)}
+                className={`mt-2 flex items-center justify-center gap-2 rounded-lg py-3 text-xs font-semibold tracking-wide text-white uppercase transition-all duration-300 disabled:opacity-100 ${
+                  addedIds.includes(product.id) 
+                    ? "bg-[#b87a88] hover:bg-[#b87a88]" 
+                    : "bg-primary hover:bg-primary-dark disabled:opacity-70"
+                }`}
               >
-                <ShoppingBag size={14} />
-                Add to Cart
+                {loadingIds.includes(product.id) ? (
+                  <>Adding...</>
+                ) : addedIds.includes(product.id) ? (
+                  <>
+                    <Check size={14} className="animate-in zoom-in duration-300" />
+                    Added to Cart
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag size={14} />
+                    Add to Cart
+                  </>
+                )}
               </button>
             </div>
-          </Link>
+            </Link>
+          </div>
         ))}
       </RevealGroup>
 

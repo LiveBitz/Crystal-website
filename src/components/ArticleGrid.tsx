@@ -41,7 +41,7 @@ export default function ArticleGrid({ pages }: { pages: Article[][] }) {
         </>
       )}
 
-      <RevealGroup className="mt-12 grid grid-cols-1 gap-6 sm:mt-16 sm:grid-cols-3">
+      <RevealGroup animationKey={page} className="mt-12 grid grid-cols-1 gap-6 sm:mt-16 sm:grid-cols-3">
         {pages[page].map((article) => (
           <a
             key={article.id}

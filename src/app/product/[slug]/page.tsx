@@ -89,8 +89,7 @@ export default async function ProductPage({
               </div>
 
               <ProductActions
-                productName={product.name}
-                price={product.price}
+                product={product}
                 whatsappNumber={process.env.WHATSAPP_NUMBER ?? ""}
               />
 

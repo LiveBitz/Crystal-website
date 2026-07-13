@@ -1,34 +1,51 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Check } from "lucide-react";
 import { useState } from "react";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { useCart } from "@/lib/cart";
+import { useRouter } from "next/navigation";
+import type { Product } from "@/lib/products";
 
 export default function ProductActions({
-  productName,
-  price,
+  product,
   whatsappNumber,
 }: {
-  productName: string;
-  price: string;
+  product: Product;
   whatsappNumber: string;
 }) {
   const [quantity, setQuantity] = useState(1);
   const configured = whatsappNumber.trim().length > 0;
+  const { addItem } = useCart();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [added, setAdded] = useState(false);
 
   const contactHref = configured
     ? buildWhatsAppLink(
         whatsappNumber,
-        `Hi! I'm interested in the ${productName} (${price}). Could you share more details?`,
+        `Hi! I'm interested in the ${product.name} (${product.price}). Could you share more details?`,
       )
     : undefined;
 
-  const buyHref = configured
-    ? buildWhatsAppLink(
-        whatsappNumber,
-        `Hi! I'd like to buy the ${productName} (${price}) x${quantity}. Please help me complete this order.`,
-      )
-    : undefined;
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const res = await fetch("/api/auth/me");
+    if (!res.ok) {
+      router.push("/sign-up");
+      return;
+    }
+
+    for (let i = 0; i < quantity; i++) {
+      addItem(product);
+    }
+    
+    setLoading(false);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
   return (
     <div className="flex flex-col gap-3">
@@ -71,17 +88,28 @@ export default function ProductActions({
         >
           Contact Us
         </a>
-        <a
-          href={buyHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-disabled={!configured}
-          className={`flex-1 rounded-md bg-primary py-3.5 text-center text-sm font-semibold uppercase tracking-wide text-gold-light transition-colors ${
-            configured ? "hover:bg-primary-dark" : "pointer-events-none opacity-50"
+        <button
+          onClick={handleAddToCart}
+          disabled={loading || added || !configured}
+          className={`flex-1 flex items-center justify-center gap-2 rounded-md py-3.5 text-center text-sm font-semibold uppercase tracking-wide transition-colors ${
+            !configured ? "pointer-events-none opacity-50 bg-primary text-gold-light" :
+            added ? "bg-[#b87a88] text-white hover:bg-[#b87a88]" : "bg-primary text-gold-light hover:bg-primary-dark"
           }`}
         >
-          Buy It Now
-        </a>
+          {loading ? (
+            "Adding..."
+          ) : added ? (
+            <>
+              <Check size={18} className="animate-in zoom-in duration-300" />
+              Added to Cart
+            </>
+          ) : (
+            <>
+              <ShoppingBag size={18} />
+              Add to Cart
+            </>
+          )}
+        </button>
       </div>
 
       {!configured && (

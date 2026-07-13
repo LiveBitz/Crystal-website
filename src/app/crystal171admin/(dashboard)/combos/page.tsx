@@ -33,6 +33,7 @@ export default async function CombosPage() {
             <thead className="border-b border-sage-200 text-xs uppercase tracking-wide text-foreground/50">
               <tr>
                 <th className="px-5 py-3">Banner</th>
+                <th className="px-5 py-3">Mobile image</th>
                 <th className="px-5 py-3">Order</th>
                 <th className="px-5 py-3">Status</th>
                 <th className="px-5 py-3" />
@@ -54,6 +55,21 @@ export default async function CombosPage() {
                       </div>
                       <span className="font-medium text-foreground">{combo.title}</span>
                     </div>
+                  </td>
+                  <td className="px-5 py-3">
+                    {combo.mobileImageUrl ? (
+                      <div className="relative h-10 w-14 overflow-hidden rounded-md bg-sage-100">
+                        <Image
+                          src={combo.mobileImageUrl}
+                          alt=""
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-xs text-foreground/40">Uses desktop image</span>
+                    )}
                   </td>
                   <td className="px-5 py-3">{combo.order}</td>
                   <td className="px-5 py-3">

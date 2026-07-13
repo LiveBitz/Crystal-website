@@ -1,11 +1,15 @@
 "use client";
 
 import gsap from "gsap";
-import { ChevronDown, Menu, Search, ShoppingCart, X } from "lucide-react";
+import { ChevronDown, Menu, Search, ShoppingCart, X, User, Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { Product } from "@/lib/products";
+import CartDrawer from "./CartDrawer";
+import { useCart } from "@/lib/cart";
+import { useWishlist } from "@/lib/wishlistStore";
 
 const navLinks = [
   { label: "Home", href: "#" },
@@ -16,12 +20,32 @@ const navLinks = [
   { label: "Contact us", href: "#" },
 ];
 
-export default function Header() {
+export default function Header({ isLoggedIn }: { isLoggedIn?: boolean }) {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Product[]>([]);
   const [searching, setSearching] = useState(false);
+  
+  const { items, setIsOpen } = useCart();
+  const { items: wishlistItems, setItems: setWishlistItems } = useWishlist();
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+    if (isLoggedIn) {
+      fetch("/api/wishlist")
+        .then(res => res.json())
+        .then(data => {
+          if (data.wishlist) setWishlistItems(data.wishlist);
+        })
+        .catch(console.error);
+    }
+  }, [isLoggedIn, setWishlistItems]);
+  
+  const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
+  const wishlistCount = wishlistItems.length;
   const searchInputRef = useRef<HTMLInputElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -99,6 +123,14 @@ export default function Header() {
     setSearchOpen(false);
     setQuery("");
     setResults([]);
+  };
+
+  const handleAuthAction = async () => {
+    if (isLoggedIn) {
+      router.push('/profile');
+    } else {
+      router.push('/sign-up');
+    }
   };
 
   return (
@@ -187,7 +219,7 @@ export default function Header() {
               <Menu size={22} />
             </button>
 
-            <a href="#" className="flex items-center gap-3 lg:mr-8">
+            <Link href="/" className="flex items-center gap-3 lg:mr-8">
               <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full">
                 <Image src="/logo.jpeg" alt="Crystalenii" fill sizes="36px" className="object-cover" />
               </span>
@@ -199,7 +231,7 @@ export default function Header() {
                   Ancient Wisdom, Modern Living
                 </p>
               </div>
-            </a>
+            </Link>
 
             <nav className="hidden flex-1 items-center gap-8 lg:flex">
               {navLinks.map((link) => (
@@ -222,8 +254,33 @@ export default function Header() {
               >
                 <Search size={20} />
               </button>
-              <button aria-label="Cart" className="text-primary transition-opacity hover:opacity-70">
+              <button
+                onClick={handleAuthAction}
+                aria-label={isLoggedIn ? "Logout" : "Login"}
+                className="text-primary transition-opacity hover:opacity-70"
+                title={isLoggedIn ? "Logout" : "Login / Register"}
+              >
+                <User size={20} />
+              </button>
+              <Link href="/wishlist" aria-label="Wishlist" className="relative text-primary transition-opacity hover:opacity-70">
+                <Heart size={20} />
+                {mounted && wishlistCount > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
+              <button 
+                onClick={() => setIsOpen(true)}
+                aria-label="Cart" 
+                className="relative text-primary transition-opacity hover:opacity-70"
+              >
                 <ShoppingCart size={20} />
+                {mounted && cartCount > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                    {cartCount}
+                  </span>
+                )}
               </button>
             </div>
           </>
@@ -243,12 +300,12 @@ export default function Header() {
         className="fixed inset-y-0 left-0 z-50 flex w-[82%] max-w-sm -translate-x-full flex-col bg-sage-50 shadow-xl lg:hidden"
       >
         <div className="flex items-center justify-between border-b border-sage-200 px-5 py-4">
-          <a href="#" className="flex items-center gap-2" onClick={closeMenu}>
+          <Link href="/" className="flex items-center gap-2" onClick={closeMenu}>
             <span className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full">
               <Image src="/logo.jpeg" alt="Crystalenii" fill sizes="28px" className="object-cover" />
             </span>
             <span className="font-serif text-lg font-bold text-primary">Crystalenii</span>
-          </a>
+          </Link>
           <button
             onClick={closeMenu}
             aria-label="Close menu"
@@ -272,6 +329,8 @@ export default function Header() {
           ))}
         </nav>
       </div>
+
+      <CartDrawer isLoggedIn={!!isLoggedIn} />
     </header>
   );
 }

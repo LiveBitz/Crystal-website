@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/db";
+import SalesChart from "./components/SalesChart";
 
 export default async function AdminDashboardPage() {
-  const [hero, products, categories, combos, testimonials, articles, faqs] = await Promise.all([
+  const [hero, products, categories, combos, testimonials, articles, faqs, orders] = await Promise.all([
     prisma.heroSlide.count(),
     prisma.product.count(),
     prisma.category.count(),
@@ -9,6 +10,7 @@ export default async function AdminDashboardPage() {
     prisma.testimonial.count(),
     prisma.article.count(),
     prisma.faqItem.count(),
+    prisma.order.findMany({ select: { id: true, totalAmount: true, createdAt: true }, orderBy: { createdAt: "asc" } })
   ]);
 
   const stats = [
@@ -39,6 +41,10 @@ export default async function AdminDashboardPage() {
             <p className="mt-1 text-sm font-medium text-foreground/70">{label}</p>
           </a>
         ))}
+      </div>
+
+      <div className="mt-8">
+        <SalesChart orders={orders} />
       </div>
     </div>
   );

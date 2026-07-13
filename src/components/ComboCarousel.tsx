@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import Reveal from "@/components/Reveal";
 
-type Banner = { id: string; imageUrl: string };
+type Banner = { id: string; imageUrl: string; mobileImageUrl?: string | null };
 
 export default function ComboCarousel({ banners }: { banners: Banner[] }) {
   const [active, setActive] = useState(0);
@@ -18,18 +18,24 @@ export default function ComboCarousel({ banners }: { banners: Banner[] }) {
   return (
     <>
       <Reveal
+        animationKey={active}
         className="relative mt-12 overflow-hidden rounded-2xl border border-gold-light/40 sm:mt-16"
         delay={0.1}
       >
         <div className="relative aspect-[4/3] w-full bg-sage-100 sm:aspect-[21/9]">
           {current?.imageUrl && (
-            <Image
-              src={current.imageUrl}
-              alt=""
-              fill
-              sizes="100vw"
-              className="object-cover"
-            />
+            <picture>
+              {current.mobileImageUrl && (
+                <source media="(max-width: 639px)" srcSet={current.mobileImageUrl} />
+              )}
+              <Image
+                src={current.imageUrl}
+                alt=""
+                fill
+                sizes="100vw"
+                className="object-cover"
+              />
+            </picture>
           )}
         </div>
 

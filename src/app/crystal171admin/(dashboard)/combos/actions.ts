@@ -8,6 +8,7 @@ function readForm(formData: FormData) {
   return {
     title: formData.get("title")?.toString() ?? "",
     imageUrl: formData.get("imageUrl")?.toString() ?? "",
+    mobileImageUrl: formData.get("mobileImageUrl")?.toString() || null,
     order: Number(formData.get("order") ?? 0),
     active: formData.get("active") === "on",
   };

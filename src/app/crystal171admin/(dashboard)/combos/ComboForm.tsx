@@ -1,6 +1,6 @@
 import ImageUploader from "@/components/admin/ImageUploader";
 
-type Defaults = { title: string; imageUrl: string; order: number; active: boolean };
+type Defaults = { title: string; imageUrl: string; mobileImageUrl?: string | null; order: number; active: boolean };
 
 export default function ComboForm({
   action,
@@ -27,8 +27,14 @@ export default function ComboForm({
 
       <ImageUploader
         name="imageUrl"
-        label="Combo banner image"
+        label="Combo banner image (Desktop 21:9)"
         defaultValue={defaultValues?.imageUrl}
+      />
+
+      <ImageUploader
+        name="mobileImageUrl"
+        label="Mobile banner image (4:3) - Optional"
+        defaultValue={defaultValues?.mobileImageUrl ?? undefined}
       />
 
       <div>
