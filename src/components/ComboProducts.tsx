@@ -10,24 +10,24 @@ export default async function ComboProducts() {
 
   return (
     <section className="bg-sage-50 py-16 sm:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-8">
-        <Reveal className="text-center">
-          <h2 className="font-serif text-3xl font-semibold text-foreground sm:text-4xl">
-            Our Combo <span className="text-primary">Products</span>
-          </h2>
-        </Reveal>
+      <Reveal className="px-4 text-center sm:px-8">
+        <h2 className="font-serif text-3xl font-semibold text-foreground sm:text-4xl">
+          Our Combo <span className="text-primary">Products</span>
+        </h2>
+      </Reveal>
 
-        {banners.length > 0 ? (
-          <>
-            <ComboCarousel banners={banners} />
-            <p className="mt-4 text-center font-serif text-sm font-semibold tracking-[0.25em] text-primary uppercase">
-              ✦ Everything You Need For A Powerful Energy Transformation ✦
-            </p>
-          </>
-        ) : (
-          <p className="mt-12 text-center text-sm text-foreground/50">No combo banners yet.</p>
-        )}
-      </div>
+      {banners.length > 0 ? (
+        <>
+          <ComboCarousel banners={banners} />
+          <p className="mt-4 px-4 text-center font-serif text-sm font-semibold tracking-[0.25em] text-primary uppercase sm:px-8">
+            ✦ Everything You Need For A Powerful Energy Transformation ✦
+          </p>
+        </>
+      ) : (
+        <p className="mt-12 px-4 text-center text-sm text-foreground/50 sm:px-8">
+          No combo banners yet.
+        </p>
+      )}
     </section>
   );
 }

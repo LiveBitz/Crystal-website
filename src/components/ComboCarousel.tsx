@@ -1,18 +1,11 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Flower2, ShieldCheck, Scale, Sun } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import Reveal from "@/components/Reveal";
 
 type Banner = { id: string; imageUrl: string };
-
-const highlights = [
-  { icon: Flower2, label: "Attract Wealth & Prosperity" },
-  { icon: ShieldCheck, label: "Powerful Protection" },
-  { icon: Scale, label: "Energy Balance & Well-being" },
-  { icon: Sun, label: "Cleanse, Charge & Rejuvenate" },
-];
 
 export default function ComboCarousel({ banners }: { banners: Banner[] }) {
   const [active, setActive] = useState(0);
@@ -28,7 +21,7 @@ export default function ComboCarousel({ banners }: { banners: Banner[] }) {
         className="relative mt-12 overflow-hidden rounded-2xl border border-gold-light/40 sm:mt-16"
         delay={0.1}
       >
-        <div className="relative aspect-[16/9] w-full bg-sage-100 sm:aspect-[21/9]">
+        <div className="relative aspect-[4/3] w-full bg-sage-100 sm:aspect-[21/9]">
           {current?.imageUrl && (
             <Image
               src={current.imageUrl}
@@ -58,18 +51,6 @@ export default function ComboCarousel({ banners }: { banners: Banner[] }) {
             </button>
           </>
         )}
-
-        {/* Highlights bar */}
-        <div className="grid grid-cols-2 gap-4 bg-primary px-6 py-5 sm:grid-cols-4 sm:gap-6 sm:px-10">
-          {highlights.map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-3">
-              <Icon className="shrink-0 text-gold-light" size={22} strokeWidth={1.5} />
-              <p className="text-xs font-semibold leading-tight text-gold-light sm:text-sm">
-                {label}
-              </p>
-            </div>
-          ))}
-        </div>
       </Reveal>
 
       {banners.length > 1 && (

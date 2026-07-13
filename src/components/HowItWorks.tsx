@@ -43,7 +43,7 @@ export default function HowItWorks() {
                 {step.number}
               </span>
 
-              <div className="flex items-center gap-4 overflow-hidden rounded-xl bg-white pl-8 pr-4 py-6">
+              <div className="flex items-center gap-4 overflow-hidden rounded-xl border border-sage-200 bg-white pl-8 pr-4 py-6">
                 <div className="flex-1">
                   <p className="font-serif text-lg font-bold text-primary">{step.title}</p>
                   <p className="mt-1 text-sm text-foreground/70">{step.description}</p>
