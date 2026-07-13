@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db";
 function readForm(formData: FormData) {
   return {
     imageUrl: formData.get("imageUrl")?.toString() ?? "",
+    mobileImageUrl: formData.get("mobileImageUrl")?.toString() || null,
     order: Number(formData.get("order") ?? 0),
     active: formData.get("active") === "on",
   };

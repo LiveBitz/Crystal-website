@@ -5,11 +5,37 @@ export default function HeroForm({
   defaultValues,
 }: {
   action: (formData: FormData) => void | Promise<void>;
-  defaultValues?: { imageUrl: string; order: number; active: boolean };
+  defaultValues?: {
+    imageUrl: string;
+    mobileImageUrl: string | null;
+    order: number;
+    active: boolean;
+  };
 }) {
   return (
     <form action={action} className="mt-6 flex max-w-lg flex-col gap-5">
-      <ImageUploader name="imageUrl" label="Banner image" defaultValue={defaultValues?.imageUrl} />
+      <div>
+        <ImageUploader
+          name="imageUrl"
+          label="Desktop banner image"
+          defaultValue={defaultValues?.imageUrl}
+        />
+        <p className="mt-1.5 text-xs text-foreground/50">
+          Recommended ratio 21:9 (e.g. 2520×1080px) — used on tablet and desktop screens.
+        </p>
+      </div>
+
+      <div>
+        <ImageUploader
+          name="mobileImageUrl"
+          label="Mobile banner image (optional)"
+          defaultValue={defaultValues?.mobileImageUrl ?? ""}
+        />
+        <p className="mt-1.5 text-xs text-foreground/50">
+          Recommended ratio 4:3 (e.g. 1200×900px) — shown on phone screens instead of the
+          desktop image above. Leave empty to reuse the desktop image on mobile too.
+        </p>
+      </div>
 
       <div>
         <label htmlFor="order" className="text-sm font-medium text-foreground">

@@ -33,6 +33,7 @@ export default async function HeroSlidesPage() {
             <thead className="border-b border-sage-200 text-xs uppercase tracking-wide text-foreground/50">
               <tr>
                 <th className="px-5 py-3">Image</th>
+                <th className="px-5 py-3">Mobile image</th>
                 <th className="px-5 py-3">Order</th>
                 <th className="px-5 py-3">Status</th>
                 <th className="px-5 py-3" />
@@ -45,6 +46,21 @@ export default async function HeroSlidesPage() {
                     <div className="relative h-12 w-20 overflow-hidden rounded-md bg-sage-100">
                       <Image src={slide.imageUrl} alt="" fill sizes="80px" className="object-cover" />
                     </div>
+                  </td>
+                  <td className="px-5 py-3">
+                    {slide.mobileImageUrl ? (
+                      <div className="relative h-12 w-16 overflow-hidden rounded-md bg-sage-100">
+                        <Image
+                          src={slide.mobileImageUrl}
+                          alt=""
+                          fill
+                          sizes="64px"
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-xs text-foreground/40">Uses desktop image</span>
+                    )}
                   </td>
                   <td className="px-5 py-3">{slide.order}</td>
                   <td className="px-5 py-3">

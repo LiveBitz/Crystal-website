@@ -2,10 +2,9 @@
 
 import gsap from "gsap";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Image from "next/image";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
-type Slide = { id: string; imageUrl: string | null };
+type Slide = { id: string; imageUrl: string | null; mobileImageUrl: string | null };
 
 // Shortest wrap-aware direction between two slide indexes: 1 = forward (new
 // slide enters from the right), -1 = backward (enters from the left).
@@ -17,7 +16,8 @@ function getDirection(from: number, to: number, length: number) {
 }
 
 export default function HeroCarousel({ slides }: { slides: Slide[] }) {
-  const displaySlides: Slide[] = slides.length > 0 ? slides : [{ id: "placeholder", imageUrl: null }];
+  const displaySlides: Slide[] =
+    slides.length > 0 ? slides : [{ id: "placeholder", imageUrl: null, mobileImageUrl: null }];
   const [active, setActive] = useState(0);
   const bannerRef = useRef<HTMLDivElement>(null);
   const offerRef = useRef<HTMLDivElement>(null);
@@ -93,15 +93,24 @@ export default function HeroCarousel({ slides }: { slides: Slide[] }) {
             }}
             className="absolute inset-0"
           >
+            {/* Native <picture> so the browser only ever downloads the
+                image that actually matches the viewport — a mobile visitor
+                never fetches the desktop banner (and vice versa) when a
+                mobile-specific image is set. Falls back to the desktop
+                image on all screens if no mobile image was uploaded. */}
             {slide.imageUrl && (
-              <Image
-                src={slide.imageUrl}
-                alt=""
-                fill
-                sizes="100vw"
-                priority={i === 0}
-                className="object-cover"
-              />
+              <picture>
+                {slide.mobileImageUrl && (
+                  <source media="(max-width: 639px)" srcSet={slide.mobileImageUrl} />
+                )}
+                <img
+                  src={slide.imageUrl}
+                  alt=""
+                  loading="eager"
+                  fetchPriority={i === 0 ? "high" : "auto"}
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              </picture>
             )}
           </div>
         ))}

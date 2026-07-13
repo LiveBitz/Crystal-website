@@ -7,5 +7,13 @@ export default async function Hero() {
     orderBy: { order: "asc" },
   });
 
-  return <HeroCarousel slides={slides.map((s) => ({ id: s.id, imageUrl: s.imageUrl }))} />;
+  return (
+    <HeroCarousel
+      slides={slides.map((s) => ({
+        id: s.id,
+        imageUrl: s.imageUrl,
+        mobileImageUrl: s.mobileImageUrl,
+      }))}
+    />
+  );
 }
