@@ -1,9 +1,11 @@
 "use client";
 
 import gsap from "gsap";
-import { ChevronDown, Heart, Menu, Search, ShoppingCart, User, X } from "lucide-react";
+import { ChevronDown, Menu, Search, ShoppingCart, X } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import type { Product } from "@/lib/products";
 
 const navLinks = [
   { label: "Home", href: "#" },
@@ -17,6 +19,9 @@ const navLinks = [
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Product[]>([]);
+  const [searching, setSearching] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -25,6 +30,30 @@ export default function Header() {
   useEffect(() => {
     if (searchOpen) searchInputRef.current?.focus();
   }, [searchOpen]);
+
+  // Debounced live search as the user types.
+  useEffect(() => {
+    const trimmed = query.trim();
+
+    const id = setTimeout(async () => {
+      if (trimmed.length < 2) {
+        setResults([]);
+        setSearching(false);
+        return;
+      }
+
+      setSearching(true);
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}`);
+        const json = await res.json();
+        setResults(json.results ?? []);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(id);
+  }, [query]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -66,32 +95,87 @@ export default function Header() {
     setSearchOpen(true);
   };
 
-  const closeSearch = () => setSearchOpen(false);
+  const closeSearch = () => {
+    setSearchOpen(false);
+    setQuery("");
+    setResults([]);
+  };
 
   return (
-    <header ref={headerRef} className="border-b border-sage-200 bg-sage-50">
+    <header ref={headerRef} className="relative border-b border-sage-200 bg-sage-50">
       <div className="relative mx-auto flex max-w-7xl items-center gap-3 px-4 py-4 sm:px-8">
         {searchOpen ? (
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="flex w-full items-center gap-2 rounded-md border border-primary/40 bg-white px-3 py-2 focus-within:border-primary"
-          >
-            <Search size={18} className="shrink-0 text-primary/60" />
-            <input
-              ref={searchInputRef}
-              type="search"
-              placeholder="Search for bracelets, crystals, ritual kits..."
-              className="w-full bg-transparent text-sm text-foreground placeholder:text-foreground/40 focus:outline-none"
-            />
-            <button
-              type="button"
-              onClick={closeSearch}
-              aria-label="Close search"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-primary transition-colors hover:bg-sage-100"
+          <div className="w-full">
+            <form
+              onSubmit={(e) => e.preventDefault()}
+              className="flex w-full items-center gap-2 rounded-md border border-primary/40 bg-white px-3 py-2 focus-within:border-primary"
             >
-              <X size={18} />
-            </button>
-          </form>
+              <Search size={18} className="shrink-0 text-primary/60" />
+              <input
+                ref={searchInputRef}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                type="search"
+                placeholder="Search for bracelets, crystals, ritual kits..."
+                className="w-full bg-transparent text-sm text-foreground placeholder:text-foreground/40 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={closeSearch}
+                aria-label="Close search"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-primary transition-colors hover:bg-sage-100"
+              >
+                <X size={18} />
+              </button>
+            </form>
+
+            {/* Live results */}
+            {query.trim().length >= 2 && (
+              <div className="animate-dropdown absolute inset-x-0 top-full z-30 border-t border-sage-200 bg-white shadow-lg">
+                <div className="mx-auto max-h-[70vh] max-w-7xl overflow-y-auto px-4 py-3 sm:px-8">
+                  {searching ? (
+                    <p className="py-6 text-center text-sm text-foreground/50">Searching…</p>
+                  ) : results.length === 0 ? (
+                    <p className="py-6 text-center text-sm text-foreground/50">
+                      No products found for &ldquo;{query}&rdquo;
+                    </p>
+                  ) : (
+                    <ul className="flex flex-col divide-y divide-sage-100">
+                      {results.map((product) => (
+                        <li key={product.id}>
+                          <Link
+                            href={`/product/${product.slug}`}
+                            onClick={closeSearch}
+                            className="flex items-center gap-3 py-2.5 transition-colors hover:bg-sage-50"
+                          >
+                            <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-sage-100">
+                              {product.imageUrl && (
+                                <Image
+                                  src={product.imageUrl}
+                                  alt=""
+                                  fill
+                                  sizes="48px"
+                                  className="object-cover"
+                                />
+                              )}
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-sm font-medium text-foreground">
+                                {product.name}
+                              </span>
+                              <span className="text-sm font-semibold text-primary">
+                                {product.price}
+                              </span>
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         ) : (
           <>
             <button
@@ -137,15 +221,6 @@ export default function Header() {
                 className="text-primary transition-opacity hover:opacity-70"
               >
                 <Search size={20} />
-              </button>
-              <button aria-label="Wishlist" className="text-primary transition-opacity hover:opacity-70">
-                <Heart size={20} />
-              </button>
-              <button
-                aria-label="Account"
-                className="hidden text-primary transition-opacity hover:opacity-70 sm:inline-flex"
-              >
-                <User size={20} />
               </button>
               <button aria-label="Cart" className="text-primary transition-opacity hover:opacity-70">
                 <ShoppingCart size={20} />

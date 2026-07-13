@@ -1,7 +1,8 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import type { Product } from "@/lib/products";
 import RevealGroup from "@/components/RevealGroup";
@@ -12,13 +13,20 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
   const prev = () => setPage((p) => (p - 1 + pages.length) % pages.length);
   const next = () => setPage((p) => (p + 1) % pages.length);
 
+  // Decorative buttons that sit inside the card-link shouldn't trigger navigation.
+  const stop = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
     <>
       <RevealGroup className="mt-12 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mt-16 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
         {pages[page].map((product) => (
-          <div
+          <Link
             key={product.id}
-            className="flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-xl border border-sage-200 bg-white shadow-sm sm:w-auto sm:shrink"
+            href={`/product/${product.slug}`}
+            className="flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-xl border border-sage-200 bg-white shadow-sm transition-shadow hover:shadow-md sm:w-auto sm:shrink"
           >
             <div className="relative aspect-square w-full bg-sage-100">
               {product.imageUrl && (
@@ -30,12 +38,6 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
                   className="object-cover"
                 />
               )}
-              <button
-                aria-label="Add to wishlist"
-                className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-primary text-gold-light shadow-md transition hover:bg-primary-dark"
-              >
-                <Heart size={16} />
-              </button>
             </div>
 
             <div className="flex flex-1 flex-col gap-2 p-4">
@@ -60,11 +62,14 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
                 </span>
               </div>
 
-              <button className="mt-auto rounded-md bg-primary py-2.5 text-xs font-semibold tracking-wide text-gold-light uppercase transition hover:bg-primary-dark">
+              <button
+                onClick={stop}
+                className="mt-auto rounded-md bg-primary py-2.5 text-xs font-semibold tracking-wide text-gold-light uppercase transition hover:bg-primary-dark"
+              >
                 Add to Cart
               </button>
             </div>
-          </div>
+          </Link>
         ))}
       </RevealGroup>
 

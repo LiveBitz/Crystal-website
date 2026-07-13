@@ -2,6 +2,7 @@ import ImageUploader from "@/components/admin/ImageUploader";
 
 type Defaults = {
   name: string;
+  description: string | null;
   imageUrl: string | null;
   price: number;
   originalPrice: number | null;
@@ -30,6 +31,20 @@ export default function ProductForm({
           name="name"
           required
           defaultValue={defaultValues?.name}
+          className="mt-1.5 w-full rounded-md border border-sage-200 px-3 py-2 text-sm focus:border-primary focus:outline-none"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="description" className="text-sm font-medium text-foreground">
+          Description (shown on the product page)
+        </label>
+        <textarea
+          id="description"
+          name="description"
+          rows={4}
+          defaultValue={defaultValues?.description ?? ""}
+          placeholder="What this crystal does, how it feels to wear, what makes it special..."
           className="mt-1.5 w-full rounded-md border border-sage-200 px-3 py-2 text-sm focus:border-primary focus:outline-none"
         />
       </div>

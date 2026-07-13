@@ -3,7 +3,7 @@
 import gsap from "gsap";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 type Slide = { id: string; imageUrl: string | null };
 
@@ -27,6 +27,7 @@ export default function HeroCarousel({ slides }: { slides: Slide[] }) {
   const prev = () => setActive((i) => (i - 1 + displaySlides.length) % displaySlides.length);
   const next = () => setActive((i) => (i + 1) % displaySlides.length);
 
+  // Entrance animation for the banner + offer bar.
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power2.out" }, delay: 0.3 });
@@ -40,6 +41,15 @@ export default function HeroCarousel({ slides }: { slides: Slide[] }) {
     return () => ctx.revert();
   }, []);
 
+  // Set each slide's starting opacity once, synchronously before paint.
+  // GSAP owns `opacity` on these elements from this point on — React never
+  // touches it again, so it can't fight the crossfade tween below.
+  useLayoutEffect(() => {
+    slideRefs.current.forEach((el, i) => {
+      if (el) gsap.set(el, { opacity: i === 0 ? 1 : 0 });
+    });
+  }, []);
+
   // Auto-advance through the slides.
   useEffect(() => {
     if (displaySlides.length <= 1) return;
@@ -47,7 +57,7 @@ export default function HeroCarousel({ slides }: { slides: Slide[] }) {
       setActive((i) => (i + 1) % displaySlides.length);
     }, 2500);
     return () => clearInterval(id);
-  }, [displaySlides.length, active]);
+  }, [displaySlides.length]);
 
   // Sleek crossfade + swipe between slides.
   useEffect(() => {
@@ -58,17 +68,14 @@ export default function HeroCarousel({ slides }: { slides: Slide[] }) {
     const outEl = slideRefs.current[from];
     const inEl = slideRefs.current[active];
 
-    const ctx = gsap.context(() => {
-      gsap.to(outEl, { opacity: 0, xPercent: -dir * 6, duration: 0.6, ease: "power2.inOut" });
-      gsap.fromTo(
-        inEl,
-        { opacity: 0, xPercent: dir * 6 },
-        { opacity: 1, xPercent: 0, duration: 0.6, ease: "power2.inOut" },
-      );
-    });
+    gsap.to(outEl, { opacity: 0, xPercent: -dir * 6, duration: 0.6, ease: "power2.inOut" });
+    gsap.fromTo(
+      inEl,
+      { opacity: 0, xPercent: dir * 6 },
+      { opacity: 1, xPercent: 0, duration: 0.6, ease: "power2.inOut" },
+    );
 
     prevActiveRef.current = active;
-    return () => ctx.revert();
   }, [active, displaySlides.length]);
 
   return (
@@ -85,7 +92,6 @@ export default function HeroCarousel({ slides }: { slides: Slide[] }) {
               slideRefs.current[i] = el;
             }}
             className="absolute inset-0"
-            style={{ opacity: i === active ? 1 : 0 }}
           >
             {slide.imageUrl && (
               <Image

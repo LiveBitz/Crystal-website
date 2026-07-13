@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { slugify } from "@/lib/slug";
+import { generateUniqueSlug } from "@/lib/slug";
 
 function readForm(formData: FormData) {
   return {
@@ -15,27 +15,14 @@ function readForm(formData: FormData) {
   };
 }
 
-// Ensures the slug is unique by appending -2, -3, ... on collision.
-async function uniqueSlug(name: string, ignoreId?: string) {
-  const base = slugify(name) || "category";
-  let slug = base;
-  let n = 2;
-  while (
-    await prisma.category.findFirst({
-      where: { slug, ...(ignoreId ? { id: { not: ignoreId } } : {}) },
-    })
-  ) {
-    slug = `${base}-${n}`;
-    n += 1;
-  }
-  return slug;
-}
-
 export async function createCategory(formData: FormData) {
   const { name, imageUrl, order, active, productIds } = readForm(formData);
   if (!name) throw new Error("Name is required");
 
-  const slug = await uniqueSlug(name);
+  const slug = await generateUniqueSlug(name, async (candidate) => {
+    const existing = await prisma.category.findUnique({ where: { slug: candidate } });
+    return existing !== null;
+  });
 
   await prisma.category.create({
     data: {
