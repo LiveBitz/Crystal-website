@@ -1,26 +1,63 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fbeef1;
+  --foreground: #2e1a30;
+
+  --color-sage-50: #fdf3f5;
+  --color-sage-100: #fae6ea;
+  --color-sage-200: #f3cdd6;
+
+  --color-primary: #3a1f3d;
+  --color-primary-dark: #26142a;
+  --color-primary-light: #52305a;
+
+  --color-gold: #b98776;
+  --color-gold-light: #d9afa0;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-sage-50: var(--color-sage-50);
+  --color-sage-100: var(--color-sage-100);
+  --color-sage-200: var(--color-sage-200);
+
+  --color-primary: var(--color-primary);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-primary-light: var(--color-primary-light);
+
+  --color-gold: var(--color-gold);
+  --color-gold-light: var(--color-gold-light);
+
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Duplicated-content marquee track; 0 → -50% scrolls the row seamlessly
+   because the item list is rendered twice in a row. Shared by any
+   continuously-scrolling row (testimonials, why-choose icons, etc). */
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marquee-scroll 22s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
 }
