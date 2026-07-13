@@ -9,13 +9,30 @@ export default async function EditCategoryPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const category = await prisma.category.findUnique({ where: { id } });
+
+  const [category, allProducts] = await Promise.all([
+    prisma.category.findUnique({
+      where: { id },
+      include: { products: { select: { id: true } } },
+    }),
+    prisma.product.findMany({
+      where: { active: true },
+      orderBy: [{ section: "asc" }, { order: "asc" }],
+      select: { id: true, name: true, imageUrl: true, section: true },
+    }),
+  ]);
+
   if (!category) notFound();
 
   return (
     <div>
       <h1 className="font-serif text-2xl font-semibold text-foreground">Edit Category</h1>
-      <CategoryForm action={updateCategory.bind(null, id)} defaultValues={category} />
+      <CategoryForm
+        action={updateCategory.bind(null, id)}
+        defaultValues={category}
+        allProducts={allProducts}
+        selectedProductIds={category.products.map((p) => p.id)}
+      />
     </div>
   );
 }

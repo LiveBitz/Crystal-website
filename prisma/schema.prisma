@@ -23,6 +23,7 @@ model Product {
   section       ProductSection
   order         Int            @default(0)
   active        Boolean        @default(true)
+  categories    Category[]     @relation("ProductCategories")
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -30,13 +31,15 @@ model Product {
 }
 
 model Category {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   name      String
+  slug      String    @unique
   imageUrl  String?
-  order     Int      @default(0)
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  order     Int       @default(0)
+  active    Boolean   @default(true)
+  products  Product[] @relation("ProductCategories")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@index([active, order])
 }

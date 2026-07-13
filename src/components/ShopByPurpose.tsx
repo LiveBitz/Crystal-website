@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import RevealGroup from "@/components/RevealGroup";
 import { prisma } from "@/lib/db";
@@ -21,9 +22,9 @@ export default async function ShopByPurpose() {
         {categories.length > 0 ? (
           <RevealGroup className="mt-12 grid grid-cols-3 gap-4 sm:mt-16 sm:grid-cols-6 sm:gap-6">
             {categories.map((category) => (
-              <a
+              <Link
                 key={category.id}
-                href="#"
+                href={`/shop/${category.slug}`}
                 className="group flex flex-col items-center gap-3 text-center"
               >
                 <div className="relative aspect-square w-full overflow-hidden rounded-xl border border-sage-200 bg-white transition-shadow group-hover:shadow-md">
@@ -38,7 +39,7 @@ export default async function ShopByPurpose() {
                   )}
                 </div>
                 <p className="text-sm font-semibold text-primary">{category.name}</p>
-              </a>
+              </Link>
             ))}
           </RevealGroup>
         ) : (
