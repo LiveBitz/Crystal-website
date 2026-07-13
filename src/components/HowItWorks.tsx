@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Reveal from "@/components/Reveal";
 import RevealGroup from "@/components/RevealGroup";
 
@@ -6,16 +7,19 @@ const steps = [
     number: 1,
     title: "Set Your Intention",
     description: "Get clear on what you want to invite.",
+    image: "/p1.png",
   },
   {
     number: 2,
     title: "Wear Your Bracelet",
     description: "Let the energy support you everyday",
+    image: "/p2.png",
   },
   {
     number: 3,
     title: "See The Shift",
     description: "Stay consistent. Watch your life transform",
+    image: "/p3.png",
   },
 ];
 
@@ -45,8 +49,15 @@ export default function HowItWorks() {
                   <p className="mt-1 text-sm text-foreground/70">{step.description}</p>
                 </div>
 
-                {/* Image slot — drop the step photo in here */}
-                <div className="h-24 w-24 shrink-0 rounded-lg bg-sage-200/60" />
+                <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-sage-200/60">
+                  <Image
+                    src={step.image}
+                    alt={step.title}
+                    fill
+                    sizes="96px"
+                    className="object-cover"
+                  />
+                </div>
               </div>
             </div>
           ))}

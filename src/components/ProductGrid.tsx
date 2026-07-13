@@ -26,7 +26,7 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
           <Link
             key={product.id}
             href={`/product/${product.slug}`}
-            className="group flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-2xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(58,31,61,0.14)] sm:w-auto sm:shrink"
+            className="group flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-sage-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-gold-light/60 hover:shadow-[0_12px_28px_rgba(58,31,61,0.14)] sm:w-auto sm:shrink"
           >
             <div className="relative aspect-square w-full overflow-hidden bg-sage-100">
               {product.imageUrl && (
@@ -37,11 +37,6 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
                   sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 78vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-              )}
-              {product.discountPercent && (
-                <span className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold tracking-wide text-gold-light shadow-sm">
-                  -{product.discountPercent}%
-                </span>
               )}
             </div>
 
@@ -73,7 +68,7 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
 
               <button
                 onClick={stop}
-                className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-primary py-3 text-xs font-semibold tracking-wide text-gold-light uppercase transition-colors duration-200 hover:bg-primary-dark"
+                className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-primary py-3 text-xs font-semibold tracking-wide text-white uppercase transition-colors duration-200 hover:bg-primary-dark"
               >
                 <ShoppingBag size={14} />
                 Add to Cart
