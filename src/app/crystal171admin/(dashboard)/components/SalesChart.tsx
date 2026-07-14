@@ -78,12 +78,12 @@ export default function SalesChart({ orders }: SalesChartProps) {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="flex rounded-lg bg-sage-50 p-1">
+          <div className="flex flex-wrap rounded-lg bg-sage-50 p-1">
             {(['week', 'month', 'year'] as const).map(f => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`rounded-md px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${
+                className={`rounded-md px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all sm:px-4 ${
                   filter === f ? "bg-white text-primary shadow-sm" : "text-foreground/60 hover:text-primary"
                 }`}
               >
@@ -92,7 +92,7 @@ export default function SalesChart({ orders }: SalesChartProps) {
             ))}
             <button
               onClick={() => setFilter('custom')}
-              className={`rounded-md px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all ${
+              className={`rounded-md px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all sm:px-4 ${
                 filter === 'custom' ? "bg-white text-primary shadow-sm" : "text-foreground/60 hover:text-primary"
               }`}
             >
@@ -101,7 +101,7 @@ export default function SalesChart({ orders }: SalesChartProps) {
           </div>
 
           {filter === 'custom' && (
-            <div className="flex items-center gap-2 text-sm animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex flex-wrap items-center gap-2 text-sm animate-in fade-in zoom-in-95 duration-200">
               <input 
                 type="date" 
                 value={startDate} 

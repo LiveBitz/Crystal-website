@@ -1,40 +1,34 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/neonAuth";
 import { prisma } from "@/lib/db";
-import { hashPassword, signJwt } from "@/lib/jwt";
-import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
-  try {
-    const { name, email, password } = await req.json();
+  const { name, email, password } = await req.json();
 
-    if (!name || !email || !password) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
-
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return NextResponse.json({ error: "Email is already registered" }, { status: 400 });
-    }
-
-    const passwordHash = await hashPassword(password);
-    const user = await prisma.user.create({
-      data: { name, email, passwordHash },
-    });
-
-    const token = await signJwt({ id: user.id, email: user.email, name: user.name });
-
-    const cookieStore = await cookies();
-    cookieStore.set("auth_token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: "/",
-    });
-
-    return NextResponse.json({ success: true, user: { id: user.id, name: user.name, email: user.email } });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+  if (!name || !email || !password) {
+    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
+
+  const { error } = await auth.signUp.email({ name, email, password });
+  if (error) {
+    return NextResponse.json(
+      { error: error.message || "Failed to create account" },
+      { status: 400 },
+    );
+  }
+
+  // Create the local profile row immediately so features that need to know
+  // "does an account exist for this email" (e.g. forgot-password) have a
+  // reliable source of truth, instead of waiting for a lazy upsert on first
+  // checkout/profile visit.
+  const { data: session } = await auth.getSession();
+  if (session?.user) {
+    await prisma.userProfile.upsert({
+      where: { id: session.user.id },
+      update: {},
+      create: { id: session.user.id, name: session.user.name, email: session.user.email },
+    });
+  }
+
+  return NextResponse.json({ success: true });
 }

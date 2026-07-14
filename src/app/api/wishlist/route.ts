@@ -1,18 +1,13 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { verifyJwt } from "@/lib/jwt";
+import { auth } from "@/lib/neonAuth";
 import { prisma } from "@/lib/db";
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-  if (!token) return NextResponse.json({ wishlist: [] });
-
-  const payload = await verifyJwt(token);
-  if (!payload || !payload.id) return NextResponse.json({ wishlist: [] });
+  const { data: session } = await auth.getSession();
+  if (!session?.user) return NextResponse.json({ wishlist: [] });
 
   const items = await prisma.wishlistItem.findMany({
-    where: { userId: payload.id as string },
+    where: { userId: session.user.id },
     select: { productId: true },
   });
 
@@ -20,16 +15,12 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-  if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const payload = await verifyJwt(token);
-  if (!payload || !payload.id) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+  const { data: session } = await auth.getSession();
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     const { productId, action } = await req.json(); // action is 'add' or 'remove'
-    const userId = payload.id as string;
+    const userId = session.user.id;
 
     if (action === "add") {
       await prisma.wishlistItem.upsert({

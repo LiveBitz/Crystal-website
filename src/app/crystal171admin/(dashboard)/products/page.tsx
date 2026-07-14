@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { Suspense } from "react";
 import { prisma } from "@/lib/db";
 import DeleteForm from "@/components/admin/DeleteForm";
+import SearchBar from "@/components/admin/SearchBar";
 import { deleteProduct } from "./actions";
 
 const sectionLabel: Record<string, string> = {
@@ -10,14 +12,21 @@ const sectionLabel: Record<string, string> = {
   NEW_ARRIVAL: "New Arrival",
 };
 
-export default async function ProductsPage() {
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+
   const products = await prisma.product.findMany({
+    where: q ? { name: { contains: q, mode: "insensitive" } } : undefined,
     orderBy: [{ section: "asc" }, { order: "asc" }],
   });
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-2xl font-semibold text-foreground">Products</h1>
           <p className="mt-1 text-sm text-foreground/60">
@@ -32,11 +41,19 @@ export default async function ProductsPage() {
         </Link>
       </div>
 
-      <div className="mt-8 overflow-hidden rounded-xl border border-sage-200 bg-white">
+      <div className="mt-6">
+        <Suspense fallback={null}>
+          <SearchBar placeholder="Search products by name..." />
+        </Suspense>
+      </div>
+
+      <div className="mt-6 overflow-x-auto rounded-xl border border-sage-200 bg-white">
         {products.length === 0 ? (
-          <p className="p-6 text-sm text-foreground/60">No products yet.</p>
+          <p className="p-6 text-sm text-foreground/60">
+            {q ? `No products match "${q}".` : "No products yet."}
+          </p>
         ) : (
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-sage-200 text-xs uppercase tracking-wide text-foreground/50">
               <tr>
                 <th className="px-5 py-3">Product</th>

@@ -10,7 +10,7 @@ export default async function CategoriesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-2xl font-semibold text-foreground">Shop By Purpose</h1>
           <p className="mt-1 text-sm text-foreground/60">
@@ -25,11 +25,11 @@ export default async function CategoriesPage() {
         </Link>
       </div>
 
-      <div className="mt-8 overflow-hidden rounded-xl border border-sage-200 bg-white">
+      <div className="mt-8 overflow-x-auto rounded-xl border border-sage-200 bg-white">
         {categories.length === 0 ? (
           <p className="p-6 text-sm text-foreground/60">No categories yet.</p>
         ) : (
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-sage-200 text-xs uppercase tracking-wide text-foreground/50">
               <tr>
                 <th className="px-5 py-3">Category</th>

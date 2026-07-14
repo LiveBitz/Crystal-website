@@ -114,11 +114,13 @@ model FaqItem {
   @@index([active, order])
 }
 
-model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  passwordHash String
+// Additive profile data (address, phone) for a Neon Auth user, keyed by
+// that user's Neon Auth id. Credentials/identity live in Neon Auth itself,
+// not here.
+model UserProfile {
+  id    String @id
+  name  String
+  email String @unique
 
   phone        String?
   addressLine1 String?

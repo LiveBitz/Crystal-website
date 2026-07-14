@@ -1,6 +1,5 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { verifyJwt } from "@/lib/jwt";
+import { auth } from "@/lib/neonAuth";
 import { prisma } from "@/lib/db";
 import { formatProduct } from "@/lib/products";
 import { chunk } from "@/lib/utils";
@@ -11,21 +10,16 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Reveal from "@/components/Reveal";
 
+export const dynamic = "force-dynamic";
+
 export default async function WishlistPage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-
-  if (!token) {
-    redirect("/sign-up");
-  }
-
-  const payload = await verifyJwt(token);
-  if (!payload || !payload.id) {
+  const { data: session } = await auth.getSession();
+  if (!session?.user) {
     redirect("/sign-up");
   }
 
   const items = await prisma.wishlistItem.findMany({
-    where: { userId: payload.id as string },
+    where: { userId: session.user.id },
     orderBy: { createdAt: "desc" },
   });
 

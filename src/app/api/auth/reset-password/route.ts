@@ -2,17 +2,17 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/neonAuth";
 
 export async function POST(req: Request) {
-  const { email, password } = await req.json();
+  const { token, newPassword } = await req.json();
 
-  if (!email || !password) {
+  if (!token || !newPassword) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  const { error } = await auth.signIn.email({ email, password });
+  const { error } = await auth.resetPassword({ token, newPassword });
   if (error) {
     return NextResponse.json(
-      { error: error.message || "Incorrect email or password." },
-      { status: 401 },
+      { error: error.message || "This reset link is invalid or has expired." },
+      { status: 400 },
     );
   }
 

@@ -1,27 +1,23 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { verifyJwt } from "@/lib/jwt";
+import { auth } from "@/lib/neonAuth";
 import { prisma } from "@/lib/db";
 import CheckoutClient from "./CheckoutClient";
 import TopBar from "@/components/TopBar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+export const dynamic = "force-dynamic";
+
 export default async function CheckoutPage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-
-  if (!token) {
+  const { data: session } = await auth.getSession();
+  if (!session?.user) {
     redirect("/sign-up");
   }
 
-  const payload = await verifyJwt(token);
-  if (!payload || !payload.id) {
-    redirect("/sign-up");
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: payload.id as string },
+  const user = await prisma.userProfile.upsert({
+    where: { id: session.user.id },
+    update: {},
+    create: { id: session.user.id, name: session.user.name, email: session.user.email },
     select: {
       name: true,
       email: true,
@@ -34,10 +30,6 @@ export default async function CheckoutPage() {
       country: true,
     }
   });
-
-  if (!user) {
-    redirect("/sign-up");
-  }
 
   // Retrieve WhatsApp number from the .env file, or use a default if not found
   const whatsappNumber = process.env.WHATSAPP_NUMBER || "7014167848";

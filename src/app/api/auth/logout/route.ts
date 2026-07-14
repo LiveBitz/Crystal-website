@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { auth } from "@/lib/neonAuth";
 
 export async function POST() {
-  const cookieStore = await cookies();
-  cookieStore.delete("auth_token");
+  await auth.signOut();
   return NextResponse.json({ success: true });
 }

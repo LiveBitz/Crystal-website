@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import SearchBar from "@/components/admin/SearchBar";
 
 async function updateOrderStatus(orderId: string, formData: FormData) {
   "use server";
@@ -15,8 +17,23 @@ async function updateOrderStatus(orderId: string, formData: FormData) {
   revalidatePath("/profile");
 }
 
-export default async function AdminOrdersPage() {
+export default async function AdminOrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+
   const orders = await prisma.order.findMany({
+    where: q
+      ? {
+          OR: [
+            { name: { contains: q, mode: "insensitive" } },
+            { phone: { contains: q, mode: "insensitive" } },
+            { id: { contains: q, mode: "insensitive" } },
+          ],
+        }
+      : undefined,
     orderBy: { createdAt: "desc" },
     include: {
       items: {
@@ -34,9 +51,17 @@ export default async function AdminOrdersPage() {
         Manage customer orders and update shipping statuses.
       </p>
 
-      <div className="mt-8 space-y-6">
+      <div className="mt-6">
+        <Suspense fallback={null}>
+          <SearchBar placeholder="Search by customer name, phone, or order ID..." />
+        </Suspense>
+      </div>
+
+      <div className="mt-6 space-y-6">
         {orders.length === 0 ? (
-          <p className="text-foreground/60">No orders found.</p>
+          <p className="text-foreground/60">
+            {q ? `No orders match "${q}".` : "No orders found."}
+          </p>
         ) : (
           orders.map(order => (
             <div key={order.id} className="rounded-2xl border border-sage-200 bg-white p-6 shadow-sm">
@@ -46,7 +71,7 @@ export default async function AdminOrdersPage() {
                   <p className="text-sm text-foreground/60">{new Date(order.createdAt).toLocaleString()}</p>
                 </div>
                 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <span className={`rounded-full px-3 py-1 text-xs font-bold tracking-wide ${
                     order.status === 'DELIVERED' ? 'bg-green-100 text-green-700' :
                     order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
@@ -56,7 +81,7 @@ export default async function AdminOrdersPage() {
                     {order.status}
                   </span>
 
-                  <form action={updateOrderStatus.bind(null, order.id)} className="flex items-center gap-2">
+                  <form action={updateOrderStatus.bind(null, order.id)} className="flex flex-wrap items-center gap-2">
                     <select 
                       name="status" 
                       defaultValue={order.status}

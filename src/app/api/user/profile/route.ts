@@ -1,30 +1,28 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { verifyJwt } from "@/lib/jwt";
+import { auth } from "@/lib/neonAuth";
 import { prisma } from "@/lib/db";
 
 export async function PUT(req: Request) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-  
-  if (!token) {
+  const { data: session } = await auth.getSession();
+  if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const payload = await verifyJwt(token);
-  if (!payload || !payload.id) {
-    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
   }
 
   try {
     const data = await req.json();
-    
+
     // Only allow updating specific fields
     const { phone, addressLine1, addressLine2, city, state, postalCode, country } = data;
 
-    await prisma.user.update({
-      where: { id: payload.id as string },
-      data: { phone, addressLine1, addressLine2, city, state, postalCode, country },
+    await prisma.userProfile.upsert({
+      where: { id: session.user.id },
+      update: { phone, addressLine1, addressLine2, city, state, postalCode, country },
+      create: {
+        id: session.user.id,
+        name: session.user.name,
+        email: session.user.email,
+        phone, addressLine1, addressLine2, city, state, postalCode, country,
+      },
     });
 
     return NextResponse.json({ success: true });

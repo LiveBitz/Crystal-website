@@ -11,12 +11,13 @@ import ShopByPurpose from "@/components/ShopByPurpose";
 import Testimonials from "@/components/Testimonials";
 import TopBar from "@/components/TopBar";
 import WhyChooseUs from "@/components/WhyChooseUs";
+import { auth } from "@/lib/neonAuth";
 
-import { cookies } from "next/headers";
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const cookieStore = await cookies();
-  const isLoggedIn = cookieStore.has("auth_token");
+  const { data: session } = await auth.getSession();
+  const isLoggedIn = !!session?.user;
 
   return (
     <>

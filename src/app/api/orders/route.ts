@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { verifyJwt } from "@/lib/jwt";
+import { auth } from "@/lib/neonAuth";
 import { prisma } from "@/lib/db";
 
 export async function POST(req: Request) {
@@ -11,16 +10,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
     }
 
-    const cookieStore = await cookies();
-    const token = cookieStore.get("auth_token")?.value;
-    
-    let userId = null;
-    if (token) {
-      const payload = await verifyJwt(token);
-      if (payload && payload.id) {
-        userId = payload.id as string;
-      }
-    }
+    const { data: session } = await auth.getSession();
+    const userId = session?.user?.id ?? null;
 
     const order = await prisma.order.create({
       data: {
