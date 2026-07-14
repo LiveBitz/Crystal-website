@@ -33,12 +33,14 @@ export default async function ShopByPurpose() {
 
       <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-8">
         <Reveal className="text-center">
-          <h2 className="font-serif text-3xl font-semibold text-foreground sm:text-4xl">
+          <h2 className="font-serif text-3xl font-semibold text-foreground sm:text-4xl mt-10">
             Shop By <span className="text-primary relative inline-block">Purpose
               <span className="animate-butterfly absolute -top-4 -right-5 text-2xl z-20 pointer-events-none drop-shadow-md opacity-0">
                 <span className="animate-butterfly-flap inline-block">🦋</span>
               </span>
-              <span className="animate-butterfly-hi absolute -top-8 -right-6 text-[11px] font-sans font-medium text-primary bg-white/95 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-sm pointer-events-none opacity-0 border border-sage-200 z-30 tracking-wide">Hi!</span>
+              <span className="animate-butterfly-hi absolute bottom-full mb-6 sm:mb-8 -right-8 sm:-right-12 w-40 sm:w-48 text-[10px] sm:text-[11px] font-sans font-medium text-primary bg-white/95 backdrop-blur-sm px-2.5 sm:px-3 py-1.5 rounded-2xl shadow-md pointer-events-none opacity-0 border border-sage-200 z-30 leading-snug tracking-wide text-left">
+                We hope you&apos;re enjoying the journey. Take your time... ✨
+              </span>
             </span>
           </h2>
         </Reveal>

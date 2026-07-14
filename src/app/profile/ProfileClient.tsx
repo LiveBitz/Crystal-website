@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Reveal from "@/components/Reveal";
 import { Loader2, LogOut, CheckCircle2, Package } from "lucide-react";
 
@@ -20,7 +21,25 @@ type Order = {
   items: OrderItem[];
 };
 
-export default function ProfileClient({ user, orders = [] }: { user: any, orders: Order[] }) {
+type ProfileUser = {
+  name: string;
+  email: string;
+  phone: string | null;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
+  country: string | null;
+};
+
+export default function ProfileClient({
+  user,
+  orders = [],
+}: {
+  user: ProfileUser;
+  orders: Order[];
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
@@ -212,7 +231,7 @@ export default function ProfileClient({ user, orders = [] }: { user: any, orders
             {orders.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-xl bg-sage-50 py-12 text-center">
                 <Package className="mb-3 text-foreground/30" size={48} />
-                <p className="text-sm font-medium text-foreground/60">You haven't placed any orders yet.</p>
+                <p className="text-sm font-medium text-foreground/60">You haven&apos;t placed any orders yet.</p>
               </div>
             ) : (
               <div className="space-y-6">
@@ -247,7 +266,13 @@ export default function ProfileClient({ user, orders = [] }: { user: any, orders
                         <div key={item.id} className="flex items-center justify-between py-3">
                           <div className="flex items-center gap-3">
                             {item.product.imageUrl ? (
-                              <img src={item.product.imageUrl} alt={item.product.name} className="h-12 w-12 rounded-md object-cover" />
+                              <Image
+                                src={item.product.imageUrl}
+                                alt={item.product.name}
+                                width={48}
+                                height={48}
+                                className="h-12 w-12 rounded-md object-cover"
+                              />
                             ) : (
                               <div className="h-12 w-12 rounded-md bg-sage-200" />
                             )}

@@ -32,7 +32,7 @@ export default function Header({ isLoggedIn }: { isLoggedIn?: boolean }) {
   const [mounted, setMounted] = useState(false);
   
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => setMounted(true));
     if (isLoggedIn) {
       fetch("/api/wishlist")
         .then(res => res.json())

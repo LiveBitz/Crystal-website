@@ -6,12 +6,32 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function CheckoutClient({ user, whatsappNumber }: { user: any, whatsappNumber: string }) {
+type CheckoutUser = {
+  name: string;
+  email: string;
+  phone: string | null;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
+  country: string | null;
+};
+
+export default function CheckoutClient({
+  user,
+  whatsappNumber,
+}: {
+  user: CheckoutUser;
+  whatsappNumber: string;
+}) {
   const { items, clearCart } = useCart();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setTimeout(() => setMounted(true));
+  }, []);
 
   if (!mounted) return null;
 

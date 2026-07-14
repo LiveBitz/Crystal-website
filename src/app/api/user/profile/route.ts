@@ -28,7 +28,8 @@ export async function PUT(req: Request) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to update profile" }, { status: 500 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to update profile";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

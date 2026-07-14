@@ -1,9 +1,9 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ShoppingBag, Star, Check, ShoppingCart, Gem } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingBag, Star, ShoppingCart, Gem } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/lib/products";
 import RevealGroup from "@/components/RevealGroup";
@@ -16,6 +16,8 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
   const { addItem } = useCart();
   const [loadingIds, setLoadingIds] = useState<string[]>([]);
   const [addedIds, setAddedIds] = useState<string[]>([]);
+  const [bursts, setBursts] = useState<Record<string, number[]>>({});
+  const burstIdRef = useRef(0);
 
   const prev = () => setPage((p) => (p - 1 + pages.length) % pages.length);
   const next = () => setPage((p) => (p + 1) % pages.length);
@@ -37,6 +39,13 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
     
     setLoadingIds(prev => prev.filter(id => id !== product.id));
     setAddedIds(prev => [...prev, product.id]);
+    
+    // Trigger magic burst
+    const burstId = ++burstIdRef.current;
+    setBursts(prev => ({ ...prev, [product.id]: [...(prev[product.id] || []), burstId] }));
+    setTimeout(() => {
+      setBursts(prev => ({ ...prev, [product.id]: prev[product.id].filter(id => id !== burstId) }));
+    }, 1000);
     
     setTimeout(() => {
       setAddedIds(prev => prev.filter(id => id !== product.id));
@@ -97,36 +106,47 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
                 )}
               </div>
 
-              <button
-                onClick={(e) => handleAddToCart(e, product)}
-                disabled={loadingIds.includes(product.id) || addedIds.includes(product.id)}
-                className={`mt-2 flex overflow-hidden items-center justify-center gap-2 rounded-lg py-3 text-xs font-semibold tracking-wide text-white uppercase transition-all duration-300 disabled:opacity-100 ${
-                  addedIds.includes(product.id) 
-                    ? "bg-[#b87a88] hover:bg-[#b87a88]" 
-                    : "bg-primary hover:bg-primary-dark disabled:opacity-70"
-                }`}
-              >
-                {loadingIds.includes(product.id) ? (
-                  <>Adding...</>
-                ) : addedIds.includes(product.id) ? (
-                  <div className="relative flex w-full items-center justify-center min-h-[16px]">
-                    <div className="absolute premium-cart-drive">
-                      <ShoppingCart size={18} className="text-white" />
-                    </div>
-                    <div className="absolute premium-gem-collect">
-                      <Gem size={10} className="text-white" />
-                    </div>
-                    <span className="absolute premium-text-reveal text-xs font-bold uppercase tracking-wide text-white">
-                      Added
-                    </span>
+              <div className="relative w-full">
+                {bursts[product.id]?.map((id) => (
+                  <div key={id} className="absolute inset-0 pointer-events-none flex items-center justify-center z-50">
+                    <span className="absolute animate-magic-burst-1 text-lg">💎</span>
+                    <span className="absolute animate-magic-burst-2 text-xl" style={{ animationDelay: '0.05s' }}>✨</span>
+                    <span className="absolute animate-magic-burst-3 text-lg" style={{ animationDelay: '0.1s' }}>💖</span>
+                    <span className="absolute animate-magic-burst-4 text-sm" style={{ animationDelay: '0.15s' }}>✨</span>
+                    <span className="absolute animate-magic-burst-5 text-sm" style={{ animationDelay: '0.08s' }}>💎</span>
                   </div>
-                ) : (
-                  <>
-                    <ShoppingBag size={14} />
-                    Add to Cart
-                  </>
-                )}
-              </button>
+                ))}
+                <button
+                  onClick={(e) => handleAddToCart(e, product)}
+                  disabled={loadingIds.includes(product.id) || addedIds.includes(product.id)}
+                  className={`w-full mt-2 flex overflow-hidden items-center justify-center gap-2 rounded-lg py-3 text-xs font-semibold tracking-wide text-white uppercase transition-all duration-300 disabled:opacity-100 ${
+                    addedIds.includes(product.id) 
+                      ? "bg-[#b87a88] hover:bg-[#b87a88]" 
+                      : "bg-primary hover:bg-primary-dark disabled:opacity-70"
+                  }`}
+                >
+                  {loadingIds.includes(product.id) ? (
+                    <>Adding...</>
+                  ) : addedIds.includes(product.id) ? (
+                    <div className="relative flex w-full items-center justify-center min-h-[16px]">
+                      <div className="absolute premium-cart-drive">
+                        <ShoppingCart size={18} className="text-white" />
+                      </div>
+                      <div className="absolute premium-gem-collect">
+                        <Gem size={10} className="text-white" />
+                      </div>
+                      <span className="absolute premium-text-reveal text-xs font-bold uppercase tracking-wide text-white">
+                        Added
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <ShoppingBag size={14} />
+                      Add to Cart
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
             </Link>
           </div>

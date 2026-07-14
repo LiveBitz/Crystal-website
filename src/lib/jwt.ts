@@ -1,4 +1,4 @@
-import { SignJWT, jwtVerify } from "jose";
+import { SignJWT, jwtVerify, type JWTPayload } from "jose";
 import bcrypt from "bcryptjs";
 
 const JWT_SECRET = new TextEncoder().encode(
@@ -13,7 +13,7 @@ export async function comparePasswords(password: string, hash: string): Promise<
   return await bcrypt.compare(password, hash);
 }
 
-export async function signJwt(payload: any, expiresIn: string = "7d"): Promise<string> {
+export async function signJwt(payload: JWTPayload, expiresIn: string = "7d"): Promise<string> {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -21,11 +21,11 @@ export async function signJwt(payload: any, expiresIn: string = "7d"): Promise<s
     .sign(JWT_SECRET);
 }
 
-export async function verifyJwt(token: string): Promise<any> {
+export async function verifyJwt(token: string): Promise<JWTPayload | null> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
     return payload;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

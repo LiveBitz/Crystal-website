@@ -22,7 +22,7 @@ export default async function RitualKitsPage() {
         <div>
           <h1 className="font-serif text-2xl font-semibold text-foreground">Ritual Kits</h1>
           <p className="mt-1 text-sm text-foreground/60">
-            Manage your store's Ritual Kits. These are sold as products.
+            Manage your store&apos;s Ritual Kits. These are sold as products.
           </p>
         </div>
         <Link

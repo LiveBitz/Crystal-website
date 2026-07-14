@@ -11,7 +11,9 @@ export default function CartDrawer({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [mounted, setMounted] = useState(false);
 
   // Avoid hydration mismatch since Zustand loads from localStorage
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setTimeout(() => setMounted(true));
+  }, []);
 
   if (!mounted) return null;
 
@@ -57,7 +59,7 @@ export default function CartDrawer({ isLoggedIn }: { isLoggedIn: boolean }) {
                 <ShoppingBag size={40} />
               </div>
               <p className="font-medium text-foreground">Your cart is empty</p>
-              <p className="mt-1 text-sm text-foreground/50">Looks like you haven't added anything yet.</p>
+              <p className="mt-1 text-sm text-foreground/50">Looks like you haven&apos;t added anything yet.</p>
               <button 
                 onClick={() => setIsOpen(false)}
                 className="mt-6 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"

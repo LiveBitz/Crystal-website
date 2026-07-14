@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         status: "PENDING",
         ...address,
         items: {
-          create: items.map((item: any) => ({
+          create: items.map((item: { productId: string; quantity: number; priceAtTime: number }) => ({
             productId: item.productId,
             quantity: item.quantity,
             priceAtTime: item.priceAtTime

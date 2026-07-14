@@ -1,8 +1,6 @@
-import { Mail, MapPin, Phone, ShieldCheck, Truck, Leaf, Gem, ArrowRight } from "lucide-react";
-import Image from "next/image";
+import { ShieldCheck, Truck, Leaf, Gem } from "lucide-react";
 import Link from "next/link";
 import RevealGroup from "@/components/RevealGroup";
-import Reveal from "@/components/Reveal";
 
 const quickLinks = [
   { label: "Home", href: "/" },

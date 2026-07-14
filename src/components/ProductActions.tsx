@@ -20,6 +20,7 @@ export default function ProductActions({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [added, setAdded] = useState(false);
+  const [bursts, setBursts] = useState<number[]>([]);
 
   const contactHref = configured
     ? buildWhatsAppLink(
@@ -44,6 +45,14 @@ export default function ProductActions({
     
     setLoading(false);
     setAdded(true);
+    
+    // Trigger magic burst
+    const burstId = Date.now();
+    setBursts((prev) => [...prev, burstId]);
+    setTimeout(() => {
+      setBursts((prev) => prev.filter((id) => id !== burstId));
+    }, 1000);
+
     setTimeout(() => setAdded(false), 2000);
   };
 
@@ -91,11 +100,20 @@ export default function ProductActions({
         <button
           onClick={handleAddToCart}
           disabled={loading || added || !configured}
-          className={`flex-1 flex items-center justify-center gap-2 rounded-md py-3.5 text-center text-sm font-semibold uppercase tracking-wide transition-colors ${
+          className={`relative flex-1 flex items-center justify-center gap-2 rounded-md py-3.5 text-center text-sm font-semibold uppercase tracking-wide transition-colors overflow-visible ${
             !configured ? "pointer-events-none opacity-50 bg-primary text-gold-light" :
             added ? "bg-[#b87a88] text-white hover:bg-[#b87a88]" : "bg-primary text-gold-light hover:bg-primary-dark"
           }`}
         >
+          {bursts.map((id) => (
+            <div key={id} className="absolute inset-0 pointer-events-none flex items-center justify-center z-50">
+              <span className="absolute animate-magic-burst-1 text-lg">💎</span>
+              <span className="absolute animate-magic-burst-2 text-xl" style={{ animationDelay: '0.05s' }}>✨</span>
+              <span className="absolute animate-magic-burst-3 text-lg" style={{ animationDelay: '0.1s' }}>💖</span>
+              <span className="absolute animate-magic-burst-4 text-sm" style={{ animationDelay: '0.15s' }}>✨</span>
+              <span className="absolute animate-magic-burst-5 text-sm" style={{ animationDelay: '0.08s' }}>💎</span>
+            </div>
+          ))}
           {loading ? (
             "Adding..."
           ) : added ? (

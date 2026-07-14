@@ -4,6 +4,7 @@ import { verifyJwt } from "@/lib/jwt";
 import { prisma } from "@/lib/db";
 import { formatProduct } from "@/lib/products";
 import { chunk } from "@/lib/utils";
+import Link from "next/link";
 import ProductGrid from "@/components/ProductGrid";
 import TopBar from "@/components/TopBar";
 import Header from "@/components/Header";
@@ -63,9 +64,9 @@ export default async function WishlistPage() {
             <Reveal y={10} delay={0.1}>
               <div className="mt-16 text-center">
                 <p className="mb-6 text-foreground/60">Your wishlist is currently empty.</p>
-                <a href="/" className="inline-flex items-center justify-center rounded-xl bg-primary px-8 py-3 text-sm font-semibold tracking-wide text-gold-light transition-all hover:bg-primary-dark hover:shadow-md">
+                <Link href="/" className="inline-flex items-center justify-center rounded-xl bg-primary px-8 py-3 text-sm font-semibold tracking-wide text-gold-light transition-all hover:bg-primary-dark hover:shadow-md">
                   Explore Products
-                </a>
+                </Link>
               </div>
             </Reveal>
           )}

@@ -148,7 +148,7 @@ export default function SalesChart({ orders }: SalesChartProps) {
             <Tooltip 
               contentStyle={{ borderRadius: '12px', border: '1px solid #f3cdd6', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', backgroundColor: '#fff' }}
               itemStyle={{ color: '#3a1f3d', fontWeight: 'bold' }}
-              formatter={(value: number) => [`Rs. ${value.toLocaleString('en-IN')}`, 'Sales']}
+              formatter={(value) => [`Rs. ${Number(value ?? 0).toLocaleString('en-IN')}`, 'Sales']}
               labelStyle={{ color: '#666', marginBottom: '4px', fontSize: '12px', fontWeight: 600 }}
             />
             <Area 
