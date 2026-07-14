@@ -9,7 +9,7 @@ export default async function ComboProducts() {
   });
 
   return (
-    <section className="bg-sage-50 py-16 sm:py-20">
+    <section id="combo-products" className="bg-sage-50 py-16 sm:py-20">
       <Reveal className="px-4 text-center sm:px-8">
         <h2 className="font-serif text-3xl font-semibold text-foreground sm:text-4xl flex items-center justify-center gap-1 sm:gap-2 mt-10">
           <span className="relative inline-block whitespace-nowrap">

@@ -11,7 +11,7 @@ export default async function ShopByPurpose() {
   });
 
   return (
-    <section className="bg-sage-50 py-16 sm:py-20 relative overflow-hidden">
+    <section id="shop-by-purpose" className="bg-sage-50 py-16 sm:py-20 relative overflow-hidden">
       {/* Global Energy Particles (Screen-wide) */}
       <div className="absolute inset-0 pointer-events-none z-10 opacity-80 text-xl sm:text-2xl">
         {/* Left Side Sources */}

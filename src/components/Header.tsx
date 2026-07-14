@@ -1,7 +1,7 @@
 "use client";
 
 import gsap from "gsap";
-import { ChevronDown, ChevronRight, Menu, Search, ShoppingCart, X, User, Heart } from "lucide-react";
+import { Menu, Search, ShoppingCart, X, User, Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,7 +13,8 @@ import { useWishlist } from "@/lib/wishlistStore";
 
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "Shop", href: "/", hasDropdown: true },
+  { label: "Shop By Purpose", href: "/#shop-by-purpose" },
+  { label: "Combo", href: "/#combo-products" },
   { label: "Ritual Kits", href: "/ritual-kits" },
   { label: "About Us", href: "/" },
   { label: "Contact us", href: "/" },
@@ -235,31 +236,13 @@ export default function Header({ isLoggedIn }: { isLoggedIn?: boolean }) {
 
             <nav className="hidden flex-1 items-center gap-8 lg:flex">
               {navLinks.map((link) => (
-                <div key={link.label} className="relative group">
-                  <Link
-                    href={link.href}
-                    className="nav-link-wrapper flex items-center gap-1 text-[15px] font-medium text-foreground/85 transition-colors hover:text-primary py-4 relative"
-                  >
-                    <span className="flower-hover">{link.label}</span>
-                    {link.hasDropdown && <ChevronDown size={16} />}
-                  </Link>
-                  {link.label === "Shop" && (
-                    <div className="absolute top-[80%] left-0 w-64 pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                      <div className="bg-[#b87a88]/95 backdrop-blur-md border border-white/20 shadow-2xl rounded-xl py-2 text-[14px] text-white flex flex-col font-medium overflow-hidden">
-                        <Link href="/category/energy-bracelet" className="px-6 py-3 hover:bg-white/15 transition-colors">Energy Bracelet</Link>
-                        <Link href="/category/crystal-anklet" className="px-6 py-3 hover:bg-white/15 transition-colors">Crystal Anklet</Link>
-                        <div className="relative group/purpose">
-                          <button className="w-full flex items-center justify-between px-6 py-3 hover:bg-white/15 transition-colors">
-                            Shop By Purpose <ChevronRight size={16} className="text-white/70" />
-                          </button>
-                        </div>
-                        <Link href="/category/vastu-products" className="px-6 py-3 hover:bg-white/15 transition-colors">Vastu Products</Link>
-                        <Link href="/category/selenite-charging-plate" className="px-6 py-3 hover:bg-white/15 transition-colors">Selenite Charging Plate</Link>
-                        <Link href="/category/combo" className="px-6 py-3 hover:bg-white/15 transition-colors">Combo</Link>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="nav-link-wrapper flex items-center gap-1 text-[15px] font-medium text-foreground/85 transition-colors hover:text-primary py-4 relative"
+                >
+                  <span className="flower-hover">{link.label}</span>
+                </Link>
               ))}
             </nav>
 
@@ -271,34 +254,45 @@ export default function Header({ isLoggedIn }: { isLoggedIn?: boolean }) {
               >
                 <Search size={20} />
               </button>
-              <button
-                onClick={handleAuthAction}
-                aria-label={isLoggedIn ? "Logout" : "Login"}
-                className="text-primary transition-opacity hover:opacity-70"
-                title={isLoggedIn ? "Logout" : "Login / Register"}
-              >
-                <User size={20} />
-              </button>
-              <Link id="nav-wishlist-icon" href="/wishlist" aria-label="Wishlist" className="relative text-primary transition-opacity hover:opacity-70">
-                <Heart size={20} />
-                {mounted && wishlistCount > 0 && (
-                  <span className="absolute -right-2 -top-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-                    {wishlistCount}
-                  </span>
-                )}
-              </Link>
-              <button 
-                onClick={() => setIsOpen(true)}
-                aria-label="Cart" 
-                className="relative text-primary transition-opacity hover:opacity-70"
-              >
-                <ShoppingCart size={20} />
-                {mounted && cartCount > 0 && (
-                  <span className="absolute -right-2 -top-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
+              {isLoggedIn ? (
+                <>
+                  <button
+                    onClick={handleAuthAction}
+                    aria-label="Account"
+                    className="text-primary transition-opacity hover:opacity-70"
+                    title="Account"
+                  >
+                    <User size={20} />
+                  </button>
+                  <Link id="nav-wishlist-icon" href="/wishlist" aria-label="Wishlist" className="relative text-primary transition-opacity hover:opacity-70">
+                    <Heart size={20} />
+                    {mounted && wishlistCount > 0 && (
+                      <span className="absolute -right-2 -top-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                        {wishlistCount}
+                      </span>
+                    )}
+                  </Link>
+                  <button
+                    onClick={() => setIsOpen(true)}
+                    aria-label="Cart"
+                    className="relative text-primary transition-opacity hover:opacity-70"
+                  >
+                    <ShoppingCart size={20} />
+                    {mounted && cartCount > 0 && (
+                      <span className="absolute -right-2 -top-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                        {cartCount}
+                      </span>
+                    )}
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-wide text-gold-light transition-colors hover:bg-primary-dark sm:px-5 sm:text-sm"
+                >
+                  Sign In
+                </Link>
+              )}
             </div>
           </>
         )}
@@ -342,7 +336,6 @@ export default function Header({ isLoggedIn }: { isLoggedIn?: boolean }) {
               className="flex items-center justify-between rounded-md px-3 py-3.5 text-base font-medium text-foreground/90 transition-colors hover:bg-sage-100 hover:text-primary"
             >
               {link.label}
-              {link.hasDropdown && <ChevronDown size={18} />}
             </a>
           ))}
         </nav>
