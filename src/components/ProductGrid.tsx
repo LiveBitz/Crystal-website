@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ShoppingBag, Star, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingBag, Star, Check, ShoppingCart, Gem } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -40,7 +40,7 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
     
     setTimeout(() => {
       setAddedIds(prev => prev.filter(id => id !== product.id));
-    }, 2000);
+    }, 2500);
   };
 
   return (
@@ -59,7 +59,7 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
               className="group flex flex-1 flex-col overflow-hidden rounded-2xl border border-sage-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-gold-light/60 hover:shadow-[0_12px_28px_rgba(58,31,61,0.14)]"
             >
               <div className="relative aspect-square w-full overflow-hidden bg-sage-100">
-                <WishlistButton productId={product.id} />
+                <WishlistButton productId={product.id} imageUrl={product.imageUrl} />
                 {product.imageUrl && (
                   <Image
                     src={product.imageUrl}
@@ -100,7 +100,7 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
               <button
                 onClick={(e) => handleAddToCart(e, product)}
                 disabled={loadingIds.includes(product.id) || addedIds.includes(product.id)}
-                className={`mt-2 flex items-center justify-center gap-2 rounded-lg py-3 text-xs font-semibold tracking-wide text-white uppercase transition-all duration-300 disabled:opacity-100 ${
+                className={`mt-2 flex overflow-hidden items-center justify-center gap-2 rounded-lg py-3 text-xs font-semibold tracking-wide text-white uppercase transition-all duration-300 disabled:opacity-100 ${
                   addedIds.includes(product.id) 
                     ? "bg-[#b87a88] hover:bg-[#b87a88]" 
                     : "bg-primary hover:bg-primary-dark disabled:opacity-70"
@@ -109,10 +109,17 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
                 {loadingIds.includes(product.id) ? (
                   <>Adding...</>
                 ) : addedIds.includes(product.id) ? (
-                  <>
-                    <Check size={14} className="animate-in zoom-in duration-300" />
-                    Added to Cart
-                  </>
+                  <div className="relative flex w-full items-center justify-center min-h-[16px]">
+                    <div className="absolute premium-cart-drive">
+                      <ShoppingCart size={18} className="text-white" />
+                    </div>
+                    <div className="absolute premium-gem-collect">
+                      <Gem size={10} className="text-white" />
+                    </div>
+                    <span className="absolute premium-text-reveal text-xs font-bold uppercase tracking-wide text-white">
+                      Added
+                    </span>
+                  </div>
                 ) : (
                   <>
                     <ShoppingBag size={14} />

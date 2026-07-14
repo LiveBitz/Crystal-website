@@ -25,6 +25,7 @@ model Product {
   section       ProductSection
   order         Int            @default(0)
   active        Boolean        @default(true)
+  isRitualKit   Boolean        @default(false)
   categories    Category[]     @relation("ProductCategories")
   orderItems    OrderItem[]
   createdAt     DateTime       @default(now())

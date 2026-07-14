@@ -1,14 +1,30 @@
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone, ShieldCheck, Truck, Leaf, Gem, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import RevealGroup from "@/components/RevealGroup";
+import Reveal from "@/components/Reveal";
 
-const quickLinks = ["Home", "Shop", "Ritual Kits", "About Us", "Blog", "Contact us"];
+const quickLinks = [
+  { label: "Home", href: "/" },
+  { label: "Shop", href: "/" },
+  { label: "Ritual Kits", href: "/ritual-kits" },
+  { label: "About Us", href: "/" },
+  { label: "Contact Us", href: "/" },
+];
+
 const customerCare = [
-  "FAQs",
-  "Shipping Policy",
-  "Returns & Refunds",
-  "Privacy Policy",
-  "Terms & Conditions",
+  { label: "FAQs", href: "/faq" },
+  { label: "Shipping Policy", href: "/shipping-policy" },
+  { label: "Returns & Refunds", href: "/returns-refunds" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Terms & Conditions", href: "/terms-conditions" },
+];
+
+const trustFeatures = [
+  { icon: Gem, title: "100% Authentic", desc: "Certified natural crystals" },
+  { icon: Leaf, title: "Ethically Sourced", desc: "Sustainable & conscious" },
+  { icon: ShieldCheck, title: "Secure Checkout", desc: "Encrypted payments" },
+  { icon: Truck, title: "Fast Shipping", desc: "Safe & tracked delivery" },
 ];
 
 function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -36,26 +52,28 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="bg-primary text-sage-100">
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-8 sm:py-16">
-        <RevealGroup
-          y={20}
-          stagger={0.12}
-          className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8"
-        >
+    <footer className="mt-12 bg-primary text-sage-100">
+      <div className="mx-auto max-w-7xl px-4 pt-12 sm:px-8">
+        
+        {/* Minimal Trust Row */}
+        <RevealGroup y={10} stagger={0.05} className="mb-12 flex flex-wrap justify-center gap-x-8 gap-y-4 border-b border-white/10 pb-8 text-white/80">
+          {trustFeatures.map((feature, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <feature.icon size={16} strokeWidth={1.5} className="text-[#b87a88]" />
+              <span className="font-serif text-sm font-medium">{feature.title}</span>
+            </div>
+          ))}
+        </RevealGroup>
+
+        {/* Main Footer Links */}
+        <RevealGroup y={15} stagger={0.1} className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8 mb-12">
           {/* Brand */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <span className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full ring-1 ring-gold-light/40">
-                <Image src="/logo.jpeg" alt="Crystalenii" fill sizes="32px" className="object-cover" />
-              </span>
-              <span className="font-serif text-xl font-bold text-sage-50">Crystalenii</span>
-            </div>
-            <p className="text-sm leading-relaxed text-sage-100/80">
-              Ancient wisdom, modern living. Handcrafted crystal jewelry for protection, balance,
-              and everyday energy.
+            <span className="font-serif text-xl font-bold tracking-wide text-white">Crystalenii</span>
+            <p className="text-xs leading-relaxed text-sage-100/60 max-w-xs">
+              Ancient wisdom, modern living. Handcrafted crystal jewelry for protection, balance, and everyday positive energy.
             </p>
-            <div className="flex items-center gap-3 pt-1">
+            <div className="flex items-center gap-3 pt-2">
               {socials.map(({ icon: Icon, label, href }) => (
                 <a
                   key={label}
@@ -63,9 +81,9 @@ export default function Footer() {
                   target={href !== "#" ? "_blank" : undefined}
                   rel={href !== "#" ? "noopener noreferrer" : undefined}
                   aria-label={label}
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-light text-sage-50 transition-colors hover:bg-gold hover:text-primary"
+                  className="group flex items-center justify-center text-sage-100/50 transition-colors hover:text-[#b87a88]"
                 >
-                  <Icon width={16} height={16} />
+                  <Icon width={18} height={18} className="transition-transform group-hover:scale-110" />
                 </a>
               ))}
             </div>
@@ -73,13 +91,16 @@ export default function Footer() {
 
           {/* Quick links */}
           <div>
-            <p className="font-serif text-base font-bold text-gold-light">Quick Links</p>
-            <ul className="mt-4 flex flex-col gap-2.5">
+            <h4 className="font-serif text-sm font-semibold text-white mb-4">Explore</h4>
+            <ul className="flex flex-col gap-3">
               {quickLinks.map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-sm text-sage-100/80 transition-colors hover:text-gold-light">
-                    {link}
-                  </a>
+                <li key={link.label}>
+                  <Link 
+                    href={link.href} 
+                    className="text-[13px] text-sage-100/60 transition-colors hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -87,13 +108,16 @@ export default function Footer() {
 
           {/* Customer care */}
           <div>
-            <p className="font-serif text-base font-bold text-gold-light">Customer Care</p>
-            <ul className="mt-4 flex flex-col gap-2.5">
+            <h4 className="font-serif text-sm font-semibold text-white mb-4">Support</h4>
+            <ul className="flex flex-col gap-3">
               {customerCare.map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-sm text-sage-100/80 transition-colors hover:text-gold-light">
-                    {link}
-                  </a>
+                <li key={link.label}>
+                  <Link 
+                    href={link.href} 
+                    className="text-[13px] text-sage-100/60 transition-colors hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -101,36 +125,28 @@ export default function Footer() {
 
           {/* Contact */}
           <div className="flex flex-col gap-4">
-            <p className="font-serif text-base font-bold text-gold-light">Stay Connected</p>
-            <ul className="flex flex-col gap-2.5 text-sm text-sage-100/80">
-              <li className="flex items-center gap-2">
-                <Mail size={15} className="shrink-0 text-gold-light" />
-                <span>support@crystalenii.com</span>
+            <h4 className="font-serif text-sm font-semibold text-white mb-1">Contact Us</h4>
+            <ul className="flex flex-col gap-3 text-[13px] text-sage-100/60">
+              <li>
+                <a href="mailto:support@crystalenii.com" className="transition-colors hover:text-white">support@crystalenii.com</a>
               </li>
-              <li className="flex items-center gap-2">
-                <Phone size={15} className="shrink-0 text-gold-light" />
-                <span>+91 00000 00000</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <MapPin size={15} className="shrink-0 text-gold-light" />
-                <span>India</span>
+              <li>
+                <span className="transition-colors hover:text-white">+91 00000 00000</span>
               </li>
             </ul>
           </div>
         </RevealGroup>
-      </div>
 
-      <div className="border-t border-sage-100/15">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-5 text-xs text-sage-100/70 sm:flex-row sm:gap-2 sm:px-8">
+        {/* Bottom Bar */}
+        <div className="border-t border-white/10 flex flex-col items-center justify-between gap-3 py-6 text-[11px] text-sage-100/40 sm:flex-row">
           <p>© {new Date().getFullYear()} Crystalenii. All rights reserved.</p>
-          <p>Ancient Wisdom, Modern Living</p>
           <a
             href="https://scalisite.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full border border-gold-light/30 bg-primary-light/40 px-4 py-1.5 text-xs font-medium text-sage-100/80 shadow-sm transition-colors hover:border-gold-light/60 hover:bg-primary-light/60 hover:text-gold-light"
+            className="transition-colors hover:text-[#b87a88]"
           >
-            Built by <span className="font-semibold text-gold-light">Scalisite</span>
+            Built by <span className="font-medium text-white/70">Scalisite</span>
           </a>
         </div>
       </div>

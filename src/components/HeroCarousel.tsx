@@ -30,12 +30,17 @@ export default function HeroCarousel({ slides }: { slides: Slide[] }) {
   // Entrance animation for the banner + offer bar.
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: "power2.out" }, delay: 0.3 });
-      tl.fromTo(bannerRef.current, { opacity: 0 }, { opacity: 1, duration: 0.9 }).fromTo(
+      const tl = gsap.timeline({ defaults: { ease: "power2.inOut" }, delay: 0.2 });
+
+      tl.fromTo(
+        bannerRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 1.5 }
+      ).fromTo(
         offerRef.current,
         { opacity: 0 },
-        { opacity: 1, duration: 0.5 },
-        "-=0.3",
+        { opacity: 1, duration: 1 },
+        "-=0.8"
       );
     });
     return () => ctx.revert();

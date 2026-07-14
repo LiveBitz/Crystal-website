@@ -1,7 +1,7 @@
 "use client";
 
 import gsap from "gsap";
-import { ChevronDown, Menu, Search, ShoppingCart, X, User, Heart } from "lucide-react";
+import { ChevronDown, ChevronRight, Menu, Search, ShoppingCart, X, User, Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,12 +12,11 @@ import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlistStore";
 
 const navLinks = [
-  { label: "Home", href: "#" },
-  { label: "Shop", href: "#", hasDropdown: true },
-  { label: "Ritual Kits", href: "#" },
-  { label: "About Us", href: "#" },
-  { label: "Blog", href: "#" },
-  { label: "Contact us", href: "#" },
+  { label: "Home", href: "/" },
+  { label: "Shop", href: "/", hasDropdown: true },
+  { label: "Ritual Kits", href: "/ritual-kits" },
+  { label: "About Us", href: "/" },
+  { label: "Contact us", href: "/" },
 ];
 
 export default function Header({ isLoggedIn }: { isLoggedIn?: boolean }) {
@@ -134,8 +133,9 @@ export default function Header({ isLoggedIn }: { isLoggedIn?: boolean }) {
   };
 
   return (
-    <header ref={headerRef} className="relative border-b border-sage-200 bg-sage-50">
-      <div className="relative mx-auto flex max-w-7xl items-center gap-3 px-4 py-4 sm:px-8">
+    <>
+      <header ref={headerRef} className="sticky top-0 z-50 border-b border-sage-200/50 bg-sage-50/90 backdrop-blur-lg shadow-[0_4px_30px_rgba(0,0,0,0.03)] transition-all duration-300">
+        <div className="relative mx-auto flex max-w-7xl items-center gap-3 px-4 py-4 sm:px-8">
         {searchOpen ? (
           <div className="w-full">
             <form
@@ -235,14 +235,31 @@ export default function Header({ isLoggedIn }: { isLoggedIn?: boolean }) {
 
             <nav className="hidden flex-1 items-center gap-8 lg:flex">
               {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="flex items-center gap-1 text-[15px] font-medium text-foreground/90 transition-colors hover:text-primary"
-                >
-                  {link.label}
-                  {link.hasDropdown && <ChevronDown size={16} />}
-                </a>
+                <div key={link.label} className="relative group">
+                  <Link
+                    href={link.href}
+                    className="nav-link-wrapper flex items-center gap-1 text-[15px] font-medium text-foreground/85 transition-colors hover:text-primary py-4 relative"
+                  >
+                    <span className="flower-hover">{link.label}</span>
+                    {link.hasDropdown && <ChevronDown size={16} />}
+                  </Link>
+                  {link.label === "Shop" && (
+                    <div className="absolute top-[80%] left-0 w-64 pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                      <div className="bg-[#b87a88]/95 backdrop-blur-md border border-white/20 shadow-2xl rounded-xl py-2 text-[14px] text-white flex flex-col font-medium overflow-hidden">
+                        <Link href="/category/energy-bracelet" className="px-6 py-3 hover:bg-white/15 transition-colors">Energy Bracelet</Link>
+                        <Link href="/category/crystal-anklet" className="px-6 py-3 hover:bg-white/15 transition-colors">Crystal Anklet</Link>
+                        <div className="relative group/purpose">
+                          <button className="w-full flex items-center justify-between px-6 py-3 hover:bg-white/15 transition-colors">
+                            Shop By Purpose <ChevronRight size={16} className="text-white/70" />
+                          </button>
+                        </div>
+                        <Link href="/category/vastu-products" className="px-6 py-3 hover:bg-white/15 transition-colors">Vastu Products</Link>
+                        <Link href="/category/selenite-charging-plate" className="px-6 py-3 hover:bg-white/15 transition-colors">Selenite Charging Plate</Link>
+                        <Link href="/category/combo" className="px-6 py-3 hover:bg-white/15 transition-colors">Combo</Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
             </nav>
 
@@ -262,7 +279,7 @@ export default function Header({ isLoggedIn }: { isLoggedIn?: boolean }) {
               >
                 <User size={20} />
               </button>
-              <Link href="/wishlist" aria-label="Wishlist" className="relative text-primary transition-opacity hover:opacity-70">
+              <Link id="nav-wishlist-icon" href="/wishlist" aria-label="Wishlist" className="relative text-primary transition-opacity hover:opacity-70">
                 <Heart size={20} />
                 {mounted && wishlistCount > 0 && (
                   <span className="absolute -right-2 -top-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
@@ -286,6 +303,7 @@ export default function Header({ isLoggedIn }: { isLoggedIn?: boolean }) {
           </>
         )}
       </div>
+      </header>
 
       {/* Backdrop */}
       <div
@@ -331,6 +349,6 @@ export default function Header({ isLoggedIn }: { isLoggedIn?: boolean }) {
       </div>
 
       <CartDrawer isLoggedIn={!!isLoggedIn} />
-    </header>
+    </>
   );
 }

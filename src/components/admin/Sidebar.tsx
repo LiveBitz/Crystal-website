@@ -11,6 +11,7 @@ import {
   HelpCircle,
   ShoppingBag,
   Sparkles,
+  Gift,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -21,6 +22,7 @@ const navItems = [
   { href: "/crystal171admin/hero", label: "Hero Banners", icon: Images },
   { href: "/crystal171admin/products", label: "Products", icon: ShoppingBag },
   { href: "/crystal171admin/categories", label: "Shop By Purpose", icon: ShoppingBag },
+  { href: "/crystal171admin/ritual-kits", label: "Ritual Kits", icon: Gift },
   { href: "/crystal171admin/combos", label: "Combo Banners", icon: Sparkles },
   { href: "/crystal171admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
   { href: "/crystal171admin/articles", label: "Articles", icon: Newspaper },
