@@ -2,14 +2,43 @@ import { BadgeCheck, ShieldCheck, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import ProductActions from "@/components/ProductActions";
 import Reveal from "@/components/Reveal";
 import TopBar from "@/components/TopBar";
 import TrustBadges from "@/components/TrustBadges";
-import { prisma } from "@/lib/db";
-import { formatProduct } from "@/lib/products";
+import { formatProduct, getProductBySlug } from "@/lib/products";
+import { auth } from "@/lib/neonAuth";
+import { absoluteUrl, SITE_NAME } from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const row = await getProductBySlug(slug);
+  if (!row) return {};
+
+  const title = `${row.name} | ${SITE_NAME}`;
+  const description =
+    row.description?.slice(0, 160) ||
+    `Shop the ${row.name} — a genuine, handpicked crystal bracelet from ${SITE_NAME}.`;
+  const url = absoluteUrl(`/product/${row.slug}`);
+  const images = row.imageUrl ? [{ url: row.imageUrl, width: 1200, height: 1200, alt: row.name }] : undefined;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: { title, description, url, images, type: "website" },
+    twitter: { card: "summary_large_image", title, description, images: row.imageUrl ? [row.imageUrl] : undefined },
+  };
+}
 
 export default async function ProductPage({
   params,
@@ -18,15 +47,60 @@ export default async function ProductPage({
 }) {
   const { slug } = await params;
 
-  const row = await prisma.product.findUnique({ where: { slug, active: true } });
+  const row = await getProductBySlug(slug);
   if (!row) notFound();
 
   const product = formatProduct(row);
 
+  const { data: session } = await auth.getSession();
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: row.name,
+    description: row.description || undefined,
+    image: row.imageUrl ? [row.imageUrl] : undefined,
+    sku: row.id,
+    offers: {
+      "@type": "Offer",
+      url: absoluteUrl(`/product/${row.slug}`),
+      priceCurrency: "INR",
+      price: row.price,
+      availability: row.active
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+    },
+    aggregateRating:
+      row.reviews > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: row.rating,
+            reviewCount: row.reviews,
+          }
+        : undefined,
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+      { "@type": "ListItem", position: 2, name: row.name, item: absoluteUrl(`/product/${row.slug}`) },
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <TopBar />
-      <Header />
+      <Header isLoggedIn={!!session?.user} />
       <main className="min-h-screen bg-background">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-12">
           {/* Breadcrumb */}

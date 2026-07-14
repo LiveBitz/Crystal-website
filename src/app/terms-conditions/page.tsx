@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+
+export const metadata: Metadata = {
+  title: "Terms & Conditions",
+  description: "The terms and conditions governing your use of Crystalenii and any purchases made through it.",
+};
 
 export default function TermsConditionsPage() {
   return (

@@ -1,4 +1,10 @@
+import { cache } from "react";
 import type { Product as PrismaProduct } from "@prisma/client";
+import { prisma } from "@/lib/db";
+
+export const getProductBySlug = cache((slug: string) =>
+  prisma.product.findUnique({ where: { slug, active: true } }),
+);
 
 export type Product = {
   id: string;

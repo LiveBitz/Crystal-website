@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/neonAuth";
 import { prisma } from "@/lib/db";
@@ -7,6 +8,10 @@ import Footer from "@/components/Footer";
 import ProfileClient from "./ProfileClient";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function ProfilePage() {
   const { data: session } = await auth.getSession();

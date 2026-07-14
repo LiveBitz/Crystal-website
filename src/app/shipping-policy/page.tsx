@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+
+export const metadata: Metadata = {
+  title: "Shipping Policy",
+  description: "Delivery timelines, packaging, and shipping details for Crystalenii orders.",
+};
 
 export default function ShippingPolicyPage() {
   return (

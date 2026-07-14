@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+
+export const metadata: Metadata = {
+  title: "Returns & Refunds",
+  description: "Crystalenii's policy on damaged items, returns, and refunds.",
+};
 
 export default function ReturnsRefundsPage() {
   return (

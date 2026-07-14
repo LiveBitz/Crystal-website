@@ -37,7 +37,9 @@ export default async function ComboProducts() {
         <>
           <ComboCarousel banners={banners} />
           <p className="mt-4 px-4 text-center font-serif text-sm font-semibold tracking-[0.25em] text-primary uppercase sm:px-8">
-            ✦ Everything You Need For A Powerful Energy Transformation ✦
+            <span className="hidden sm:inline">✦ </span>
+            Everything You Need For A Powerful Energy Transformation
+            <span className="hidden sm:inline"> ✦</span>
           </p>
         </>
       ) : (

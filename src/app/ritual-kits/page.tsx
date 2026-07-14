@@ -1,21 +1,32 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import ProductGrid from "@/components/ProductGrid";
 import { chunk } from "@/lib/utils";
 import { formatProduct } from "@/lib/products";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { auth } from "@/lib/neonAuth";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Ritual Kits",
+  description:
+    "Curated crystal ritual kits — crystals, tools, and instructions to help you set intentions and build a daily energy ritual.",
+};
 
 export default async function RitualKitsPage() {
   const kits = await prisma.product.findMany({
     where: { isRitualKit: true, active: true },
     orderBy: { order: "asc" },
   });
-  
+
   const pages = chunk(kits.map(formatProduct), 4);
+  const { data: session } = await auth.getSession();
 
   return (
     <>
-      <Header />
+      <Header isLoggedIn={!!session?.user} />
       <div className="min-h-screen bg-sage-50 pb-20 pt-28 sm:pt-36">
       <div className="mx-auto max-w-7xl px-4 sm:px-8">
         <div className="mb-12 text-center">
