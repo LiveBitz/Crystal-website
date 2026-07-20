@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/neonAuth";
-import { prisma } from "@/lib/db";
+import { upsertUserProfileFields } from "@/lib/data/userProfile";
 
 export async function PUT(req: Request) {
   const { data: session } = await auth.getSession();
@@ -14,15 +14,11 @@ export async function PUT(req: Request) {
     // Only allow updating specific fields
     const { phone, addressLine1, addressLine2, city, state, postalCode, country } = data;
 
-    await prisma.userProfile.upsert({
-      where: { id: session.user.id },
-      update: { phone, addressLine1, addressLine2, city, state, postalCode, country },
-      create: {
-        id: session.user.id,
-        name: session.user.name,
-        email: session.user.email,
-        phone, addressLine1, addressLine2, city, state, postalCode, country,
-      },
+    await upsertUserProfileFields({
+      id: session.user.id,
+      name: session.user.name,
+      email: session.user.email,
+      phone, addressLine1, addressLine2, city, state, postalCode, country,
     });
 
     return NextResponse.json({ success: true });

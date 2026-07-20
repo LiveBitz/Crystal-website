@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import ProductGrid from "@/components/ProductGrid";
 import TopBar from "@/components/TopBar";
-import { prisma } from "@/lib/db";
+import { getCategoryBySlug as getCategoryBySlugRaw, getActiveProductsForCategory } from "@/lib/data/categories";
 import { formatProduct } from "@/lib/products";
 import { chunk } from "@/lib/utils";
 import { auth } from "@/lib/neonAuth";
@@ -15,17 +15,7 @@ import { absoluteUrl, SITE_NAME } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
-const getCategoryBySlug = cache((slug: string) =>
-  prisma.category.findUnique({
-    where: { slug, active: true },
-    include: {
-      products: {
-        where: { active: true },
-        orderBy: [{ section: "asc" }, { order: "asc" }],
-      },
-    },
-  }),
-);
+const getCategoryBySlug = cache(getCategoryBySlugRaw);
 
 export async function generateMetadata({
   params,
@@ -62,7 +52,8 @@ export default async function ShopCategoryPage({
   const category = await getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const pages = chunk(category.products.map(formatProduct), 4);
+  const products = await getActiveProductsForCategory(category.id);
+  const pages = chunk(products.map(formatProduct), 4);
   const { data: session } = await auth.getSession();
 
   const breadcrumbJsonLd = {

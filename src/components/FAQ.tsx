@@ -1,12 +1,9 @@
 import Reveal from "@/components/Reveal";
 import FaqAccordion from "@/components/FaqAccordion";
-import { prisma } from "@/lib/db";
+import { listFaqItems } from "@/lib/data/faq";
 
 export default async function FAQ() {
-  const items = await prisma.faqItem.findMany({
-    where: { active: true },
-    orderBy: { order: "asc" },
-  });
+  const items = await listFaqItems({ activeOnly: true });
 
   return (
     <section className="bg-sage-50 py-16 sm:py-20">

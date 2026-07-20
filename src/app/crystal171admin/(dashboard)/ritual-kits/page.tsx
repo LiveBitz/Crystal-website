@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Suspense } from "react";
-import { prisma } from "@/lib/db";
+import { listProducts } from "@/lib/data/products";
 import DeleteForm from "@/components/admin/DeleteForm";
 import SearchBar from "@/components/admin/SearchBar";
 import { deleteRitualKit } from "./actions";
@@ -19,13 +19,7 @@ export default async function RitualKitsPage({
 }) {
   const { q } = await searchParams;
 
-  const products = await prisma.product.findMany({
-    where: {
-      isRitualKit: true,
-      ...(q ? { name: { contains: q, mode: "insensitive" } } : {}),
-    },
-    orderBy: [{ section: "asc" }, { order: "asc" }],
-  });
+  const products = await listProducts({ isRitualKit: true, q });
 
   return (
     <div>

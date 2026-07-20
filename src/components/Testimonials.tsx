@@ -1,6 +1,6 @@
 import { Quote } from "lucide-react";
 import Reveal from "@/components/Reveal";
-import { prisma } from "@/lib/db";
+import { listTestimonials } from "@/lib/data/testimonials";
 
 type Testimonial = {
   id: string;
@@ -37,10 +37,7 @@ const MIN_CARDS = 6;
 // Reuses the `.marquee-track` keyframe (see globals.css) for both rows;
 // the second row just runs the same animation in reverse.
 export default async function Testimonials() {
-  const testimonials = await prisma.testimonial.findMany({
-    where: { active: true },
-    orderBy: { order: "asc" },
-  });
+  const testimonials = await listTestimonials({ activeOnly: true });
 
   const half =
     testimonials.length > 0

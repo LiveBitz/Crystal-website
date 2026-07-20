@@ -1,12 +1,9 @@
 import Reveal from "@/components/Reveal";
 import ComboCarousel from "@/components/ComboCarousel";
-import { prisma } from "@/lib/db";
+import { listComboBanners } from "@/lib/data/combos";
 
 export default async function ComboProducts() {
-  const banners = await prisma.comboBanner.findMany({
-    where: { active: true },
-    orderBy: { order: "asc" },
-  });
+  const banners = await listComboBanners({ activeOnly: true });
 
   return (
     <section id="combo-products" className="bg-sage-50 py-16 sm:py-20">

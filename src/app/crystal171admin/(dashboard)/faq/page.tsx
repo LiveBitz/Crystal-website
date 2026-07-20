@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { prisma } from "@/lib/db";
+import { listFaqItems } from "@/lib/data/faq";
 import DeleteForm from "@/components/admin/DeleteForm";
 import { deleteFaqItem } from "./actions";
 
 export default async function FaqPage() {
-  const items = await prisma.faqItem.findMany({ orderBy: { order: "asc" } });
+  const items = await listFaqItems();
 
   return (
     <div>

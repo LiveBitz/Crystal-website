@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { getComboBannerById } from "@/lib/data/combos";
 import ComboForm from "../ComboForm";
 import { updateComboBanner } from "../actions";
 
@@ -9,7 +9,7 @@ export default async function EditComboPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const combo = await prisma.comboBanner.findUnique({ where: { id } });
+  const combo = await getComboBannerById(id);
   if (!combo) notFound();
 
   return (

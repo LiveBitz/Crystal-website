@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { prisma } from "@/lib/db";
+import { listComboBanners } from "@/lib/data/combos";
 import DeleteForm from "@/components/admin/DeleteForm";
 import { deleteComboBanner } from "./actions";
 
 export default async function CombosPage() {
-  const combos = await prisma.comboBanner.findMany({ orderBy: { order: "asc" } });
+  const combos = await listComboBanners();
 
   return (
     <div>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/neonAuth";
-import { prisma } from "@/lib/db";
+import { ensureUserProfile } from "@/lib/data/userProfile";
 import CheckoutClient from "./CheckoutClient";
 import TopBar from "@/components/TopBar";
 import Header from "@/components/Header";
@@ -19,21 +19,10 @@ export default async function CheckoutPage() {
     redirect("/sign-up");
   }
 
-  const user = await prisma.userProfile.upsert({
-    where: { id: session.user.id },
-    update: {},
-    create: { id: session.user.id, name: session.user.name, email: session.user.email },
-    select: {
-      name: true,
-      email: true,
-      phone: true,
-      addressLine1: true,
-      addressLine2: true,
-      city: true,
-      state: true,
-      postalCode: true,
-      country: true,
-    }
+  const user = await ensureUserProfile({
+    id: session.user.id,
+    name: session.user.name,
+    email: session.user.email,
   });
 
   // Retrieve WhatsApp number from the .env file, or use a default if not found

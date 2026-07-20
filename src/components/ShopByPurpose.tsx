@@ -2,13 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import RevealGroup from "@/components/RevealGroup";
-import { prisma } from "@/lib/db";
+import { listCategories } from "@/lib/data/categories";
 
 export default async function ShopByPurpose() {
-  const categories = await prisma.category.findMany({
-    where: { active: true },
-    orderBy: { order: "asc" },
-  });
+  const categories = await listCategories({ activeOnly: true });
 
   return (
     <section id="shop-by-purpose" className="bg-sage-50 py-16 sm:py-20 relative overflow-hidden">

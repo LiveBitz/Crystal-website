@@ -1,13 +1,10 @@
 import Reveal from "@/components/Reveal";
 import ArticleGrid, { type Article } from "@/components/ArticleGrid";
-import { prisma } from "@/lib/db";
+import { listArticles } from "@/lib/data/articles";
 import { chunk } from "@/lib/utils";
 
 export default async function RecentArticles() {
-  const articles = await prisma.article.findMany({
-    where: { active: true },
-    orderBy: { order: "asc" },
-  });
+  const articles = await listArticles({ activeOnly: true });
 
   const formatted: Article[] = articles.map((a) => ({
     id: a.id,

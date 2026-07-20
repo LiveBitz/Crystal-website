@@ -1,10 +1,7 @@
 import { cache } from "react";
-import type { Product as PrismaProduct } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import { getProductBySlugRaw, type ProductRow } from "@/lib/data/products";
 
-export const getProductBySlug = cache((slug: string) =>
-  prisma.product.findUnique({ where: { slug, active: true } }),
-);
+export const getProductBySlug = cache((slug: string) => getProductBySlugRaw(slug));
 
 export type Product = {
   id: string;
@@ -19,7 +16,7 @@ export type Product = {
   reviews: number;
 };
 
-export function formatProduct(p: PrismaProduct): Product {
+export function formatProduct(p: ProductRow): Product {
   const discountPercent =
     p.originalPrice && p.originalPrice > p.price
       ? Math.round((1 - p.price / p.originalPrice) * 100)

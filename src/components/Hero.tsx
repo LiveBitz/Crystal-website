@@ -1,11 +1,8 @@
-import { prisma } from "@/lib/db";
+import { listHeroSlides } from "@/lib/data/hero";
 import HeroCarousel from "@/components/HeroCarousel";
 
 export default async function Hero() {
-  const slides = await prisma.heroSlide.findMany({
-    where: { active: true },
-    orderBy: { order: "asc" },
-  });
+  const slides = await listHeroSlides({ activeOnly: true });
 
   return (
     <HeroCarousel

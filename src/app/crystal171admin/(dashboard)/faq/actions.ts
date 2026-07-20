@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { createFaqItemRow, deleteFaqItemRow, updateFaqItemRow } from "@/lib/data/faq";
 
 function readForm(formData: FormData) {
   return {
@@ -16,7 +16,7 @@ function readForm(formData: FormData) {
 export async function createFaqItem(formData: FormData) {
   const data = readForm(formData);
   if (!data.question || !data.answer) throw new Error("Question and answer are required");
-  await prisma.faqItem.create({ data });
+  await createFaqItemRow(data);
   revalidatePath("/crystal171admin/faq");
   revalidatePath("/");
   redirect("/crystal171admin/faq");
@@ -24,14 +24,14 @@ export async function createFaqItem(formData: FormData) {
 
 export async function updateFaqItem(id: string, formData: FormData) {
   const data = readForm(formData);
-  await prisma.faqItem.update({ where: { id }, data });
+  await updateFaqItemRow(id, data);
   revalidatePath("/crystal171admin/faq");
   revalidatePath("/");
   redirect("/crystal171admin/faq");
 }
 
 export async function deleteFaqItem(id: string) {
-  await prisma.faqItem.delete({ where: { id } });
+  await deleteFaqItemRow(id);
   revalidatePath("/crystal171admin/faq");
   revalidatePath("/");
 }

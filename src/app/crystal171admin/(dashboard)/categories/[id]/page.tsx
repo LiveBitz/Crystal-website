@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { getCategoryById, getProductIdsForCategory } from "@/lib/data/categories";
+import { listProducts } from "@/lib/data/products";
 import CategoryForm from "../CategoryForm";
 import { updateCategory } from "../actions";
 
@@ -10,16 +11,10 @@ export default async function EditCategoryPage({
 }) {
   const { id } = await params;
 
-  const [category, allProducts] = await Promise.all([
-    prisma.category.findUnique({
-      where: { id },
-      include: { products: { select: { id: true } } },
-    }),
-    prisma.product.findMany({
-      where: { active: true },
-      orderBy: [{ section: "asc" }, { order: "asc" }],
-      select: { id: true, name: true, imageUrl: true, section: true },
-    }),
+  const [category, allProducts, selectedProductIds] = await Promise.all([
+    getCategoryById(id),
+    listProducts({ activeOnly: true }),
+    getProductIdsForCategory(id),
   ]);
 
   if (!category) notFound();
@@ -31,7 +26,7 @@ export default async function EditCategoryPage({
         action={updateCategory.bind(null, id)}
         defaultValues={category}
         allProducts={allProducts}
-        selectedProductIds={category.products.map((p) => p.id)}
+        selectedProductIds={selectedProductIds}
       />
     </div>
   );

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { listProducts } from "@/lib/data/products";
 import { formatProduct } from "@/lib/products";
 
 export async function GET(req: NextRequest) {
@@ -9,14 +9,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ results: [] });
   }
 
-  const rows = await prisma.product.findMany({
-    where: {
-      active: true,
-      name: { contains: q, mode: "insensitive" },
-    },
-    orderBy: { order: "asc" },
-    take: 8,
-  });
+  const rows = (await listProducts({ activeOnly: true, q })).slice(0, 8);
 
   return NextResponse.json({ results: rows.map(formatProduct) });
 }

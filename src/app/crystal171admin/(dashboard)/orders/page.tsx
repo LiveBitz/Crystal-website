@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { prisma } from "@/lib/db";
+import { listOrders, updateOrderStatusRow } from "@/lib/data/orders";
 import { revalidatePath } from "next/cache";
 import SearchBar from "@/components/admin/SearchBar";
 
@@ -8,10 +8,7 @@ async function updateOrderStatus(orderId: string, formData: FormData) {
   const status = formData.get("status") as string;
   if (!status) return;
 
-  await prisma.order.update({
-    where: { id: orderId },
-    data: { status }
-  });
+  await updateOrderStatusRow(orderId, status);
 
   revalidatePath("/crystal171admin/orders");
   revalidatePath("/profile");
@@ -24,23 +21,7 @@ export default async function AdminOrdersPage({
 }) {
   const { q } = await searchParams;
 
-  const orders = await prisma.order.findMany({
-    where: q
-      ? {
-          OR: [
-            { name: { contains: q, mode: "insensitive" } },
-            { phone: { contains: q, mode: "insensitive" } },
-            { id: { contains: q, mode: "insensitive" } },
-          ],
-        }
-      : undefined,
-    orderBy: { createdAt: "desc" },
-    include: {
-      items: {
-        include: { product: true }
-      }
-    }
-  });
+  const orders = await listOrders({ q });
 
   const statusOptions = ["PENDING", "CONFIRMED", "PACKED", "SHIPPED", "DELIVERED", "CANCELLED"];
 

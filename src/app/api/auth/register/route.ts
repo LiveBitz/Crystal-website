@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/neonAuth";
-import { prisma } from "@/lib/db";
+import { ensureUserProfile } from "@/lib/data/userProfile";
 
 export async function POST(req: Request) {
   const { name, email, password } = await req.json();
@@ -23,10 +23,10 @@ export async function POST(req: Request) {
   // checkout/profile visit.
   const { data: session } = await auth.getSession();
   if (session?.user) {
-    await prisma.userProfile.upsert({
-      where: { id: session.user.id },
-      update: {},
-      create: { id: session.user.id, name: session.user.name, email: session.user.email },
+    await ensureUserProfile({
+      id: session.user.id,
+      name: session.user.name,
+      email: session.user.email,
     });
   }
 

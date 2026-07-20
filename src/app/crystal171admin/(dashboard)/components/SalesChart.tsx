@@ -7,7 +7,7 @@ import { format, subDays, isWithinInterval, startOfDay, endOfDay, startOfYear } 
 type Order = {
   id: string;
   totalAmount: number;
-  createdAt: Date;
+  createdAt: string;
 };
 
 type SalesChartProps = {

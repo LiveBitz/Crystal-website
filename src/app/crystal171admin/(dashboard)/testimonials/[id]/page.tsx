@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { getTestimonialById } from "@/lib/data/testimonials";
 import TestimonialForm from "../TestimonialForm";
 import { updateTestimonial } from "../actions";
 
@@ -9,7 +9,7 @@ export default async function EditTestimonialPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const testimonial = await prisma.testimonial.findUnique({ where: { id } });
+  const testimonial = await getTestimonialById(id);
   if (!testimonial) notFound();
 
   return (

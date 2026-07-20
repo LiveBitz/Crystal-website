@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/neonAuth";
-import { prisma } from "@/lib/db";
+import { listWishlistItems } from "@/lib/data/wishlist";
+import { getActiveProductsByIds } from "@/lib/data/products";
 import { formatProduct } from "@/lib/products";
 import { chunk } from "@/lib/utils";
 import Link from "next/link";
@@ -23,18 +24,10 @@ export default async function WishlistPage() {
     redirect("/sign-up");
   }
 
-  const items = await prisma.wishlistItem.findMany({
-    where: { userId: session.user.id },
-    orderBy: { createdAt: "desc" },
-  });
+  const items = await listWishlistItems(session.user.id);
 
   const productIds = items.map(item => item.productId);
-  const productsResult = await prisma.product.findMany({
-    where: {
-      id: { in: productIds },
-      active: true,
-    }
-  });
+  const productsResult = await getActiveProductsByIds(productIds);
 
   // Sort products based on when they were wishlisted (newest first)
   const products = items

@@ -1,14 +1,11 @@
 import ProductGrid from "@/components/ProductGrid";
 import Reveal from "@/components/Reveal";
-import { prisma } from "@/lib/db";
+import { listProducts } from "@/lib/data/products";
 import { formatProduct } from "@/lib/products";
 import { chunk } from "@/lib/utils";
 
 export default async function NewArrivals() {
-  const products = await prisma.product.findMany({
-    where: { section: "NEW_ARRIVAL", active: true },
-    orderBy: { order: "asc" },
-  });
+  const products = await listProducts({ section: "NEW_ARRIVAL", activeOnly: true });
   const pages = chunk(products.map(formatProduct), 4);
 
   return (

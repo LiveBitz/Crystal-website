@@ -17,7 +17,7 @@ type Order = {
   id: string;
   totalAmount: number;
   status: string;
-  createdAt: Date;
+  createdAt: string;
   items: OrderItem[];
 };
 

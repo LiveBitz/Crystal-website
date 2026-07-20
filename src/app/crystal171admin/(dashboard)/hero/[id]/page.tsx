@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { getHeroSlideById } from "@/lib/data/hero";
 import HeroForm from "../HeroForm";
 import { updateHeroSlide } from "../actions";
 
@@ -9,7 +9,7 @@ export default async function EditHeroSlidePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const slide = await prisma.heroSlide.findUnique({ where: { id } });
+  const slide = await getHeroSlideById(id);
   if (!slide) notFound();
 
   return (

@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { prisma } from "@/lib/db";
+import { listArticles } from "@/lib/data/articles";
 import DeleteForm from "@/components/admin/DeleteForm";
 import { deleteArticle } from "./actions";
 
 export default async function ArticlesPage() {
-  const articles = await prisma.article.findMany({ orderBy: { order: "asc" } });
+  const articles = await listArticles();
 
   return (
     <div>

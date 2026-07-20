@@ -2,7 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/db";
+import {
+  categorySlugExists,
+  createCategoryRow,
+  deleteCategoryRow,
+  updateCategoryRow,
+} from "@/lib/data/categories";
 import { generateUniqueSlug } from "@/lib/slug";
 
 function readForm(formData: FormData) {
@@ -16,24 +21,12 @@ function readForm(formData: FormData) {
 }
 
 export async function createCategory(formData: FormData) {
-  const { name, imageUrl, order, active, productIds } = readForm(formData);
-  if (!name) throw new Error("Name is required");
+  const data = readForm(formData);
+  if (!data.name) throw new Error("Name is required");
 
-  const slug = await generateUniqueSlug(name, async (candidate) => {
-    const existing = await prisma.category.findUnique({ where: { slug: candidate } });
-    return existing !== null;
-  });
+  const slug = await generateUniqueSlug(data.name, categorySlugExists);
 
-  await prisma.category.create({
-    data: {
-      name,
-      slug,
-      imageUrl,
-      order,
-      active,
-      products: { connect: productIds.map((id) => ({ id })) },
-    },
-  });
+  await createCategoryRow({ ...data, slug });
 
   revalidatePath("/crystal171admin/categories");
   revalidatePath("/");
@@ -41,28 +34,19 @@ export async function createCategory(formData: FormData) {
 }
 
 export async function updateCategory(id: string, formData: FormData) {
-  const { name, imageUrl, order, active, productIds } = readForm(formData);
+  const data = readForm(formData);
 
-  const category = await prisma.category.update({
-    where: { id },
-    data: {
-      name,
-      imageUrl,
-      order,
-      active,
-      products: { set: productIds.map((pid) => ({ id: pid })) },
-    },
-  });
+  const category = await updateCategoryRow(id, data);
 
   revalidatePath("/crystal171admin/categories");
   revalidatePath("/");
-  revalidatePath(`/shop/${category.slug}`);
+  if (category) revalidatePath(`/shop/${category.slug}`);
   redirect("/crystal171admin/categories");
 }
 
 export async function deleteCategory(id: string) {
-  const category = await prisma.category.delete({ where: { id } });
+  const category = await deleteCategoryRow(id);
   revalidatePath("/crystal171admin/categories");
   revalidatePath("/");
-  revalidatePath(`/shop/${category.slug}`);
+  if (category) revalidatePath(`/shop/${category.slug}`);
 }

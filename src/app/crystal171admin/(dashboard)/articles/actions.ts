@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { createArticleRow, deleteArticleRow, updateArticleRow } from "@/lib/data/articles";
 
 function readForm(formData: FormData) {
   return {
@@ -18,7 +18,7 @@ function readForm(formData: FormData) {
 export async function createArticle(formData: FormData) {
   const data = readForm(formData);
   if (!data.title) throw new Error("Title is required");
-  await prisma.article.create({ data });
+  await createArticleRow(data);
   revalidatePath("/crystal171admin/articles");
   revalidatePath("/");
   redirect("/crystal171admin/articles");
@@ -26,14 +26,14 @@ export async function createArticle(formData: FormData) {
 
 export async function updateArticle(id: string, formData: FormData) {
   const data = readForm(formData);
-  await prisma.article.update({ where: { id }, data });
+  await updateArticleRow(id, data);
   revalidatePath("/crystal171admin/articles");
   revalidatePath("/");
   redirect("/crystal171admin/articles");
 }
 
 export async function deleteArticle(id: string) {
-  await prisma.article.delete({ where: { id } });
+  await deleteArticleRow(id);
   revalidatePath("/crystal171admin/articles");
   revalidatePath("/");
 }

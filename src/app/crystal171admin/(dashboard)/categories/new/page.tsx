@@ -1,13 +1,9 @@
-import { prisma } from "@/lib/db";
+import { listProducts } from "@/lib/data/products";
 import CategoryForm from "../CategoryForm";
 import { createCategory } from "../actions";
 
 export default async function NewCategoryPage() {
-  const allProducts = await prisma.product.findMany({
-    where: { active: true },
-    orderBy: [{ section: "asc" }, { order: "asc" }],
-    select: { id: true, name: true, imageUrl: true, section: true },
-  });
+  const allProducts = await listProducts({ activeOnly: true });
 
   return (
     <div>

@@ -1,16 +1,23 @@
-import { prisma } from "@/lib/db";
+import { countHeroSlides } from "@/lib/data/hero";
+import { countProducts } from "@/lib/data/products";
+import { countCategories } from "@/lib/data/categories";
+import { countComboBanners } from "@/lib/data/combos";
+import { countTestimonials } from "@/lib/data/testimonials";
+import { countArticles } from "@/lib/data/articles";
+import { countFaqItems } from "@/lib/data/faq";
+import { listOrdersForChart } from "@/lib/data/orders";
 import SalesChart from "./components/SalesChart";
 
 export default async function AdminDashboardPage() {
   const [hero, products, categories, combos, testimonials, articles, faqs, orders] = await Promise.all([
-    prisma.heroSlide.count(),
-    prisma.product.count(),
-    prisma.category.count(),
-    prisma.comboBanner.count(),
-    prisma.testimonial.count(),
-    prisma.article.count(),
-    prisma.faqItem.count(),
-    prisma.order.findMany({ select: { id: true, totalAmount: true, createdAt: true }, orderBy: { createdAt: "asc" } })
+    countHeroSlides(),
+    countProducts(),
+    countCategories(),
+    countComboBanners(),
+    countTestimonials(),
+    countArticles(),
+    countFaqItems(),
+    listOrdersForChart(),
   ]);
 
   const stats = [

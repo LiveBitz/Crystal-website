@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/neonAuth";
-import { prisma } from "@/lib/db";
+import { createOrderRow } from "@/lib/data/orders";
 
 export async function POST(req: Request) {
   try {
@@ -13,23 +13,18 @@ export async function POST(req: Request) {
     const { data: session } = await auth.getSession();
     const userId = session?.user?.id ?? null;
 
-    const order = await prisma.order.create({
-      data: {
-        userId,
-        totalAmount,
-        status: "PENDING",
-        ...address,
-        items: {
-          create: items.map((item: { productId: string; quantity: number; priceAtTime: number }) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            priceAtTime: item.priceAtTime
-          }))
-        }
-      }
+    const orderId = await createOrderRow({
+      userId,
+      totalAmount,
+      ...address,
+      items: items.map((item: { productId: string; quantity: number; priceAtTime: number }) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        priceAtTime: item.priceAtTime,
+      })),
     });
 
-    return NextResponse.json({ success: true, order });
+    return NextResponse.json({ success: true, order: { id: orderId } });
   } catch (error) {
     console.error("Order logging error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { getFaqItemById } from "@/lib/data/faq";
 import FaqForm from "../FaqForm";
 import { updateFaqItem } from "../actions";
 
@@ -9,7 +9,7 @@ export default async function EditFaqPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const item = await prisma.faqItem.findUnique({ where: { id } });
+  const item = await getFaqItemById(id);
   if (!item) notFound();
 
   return (

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/neonAuth";
-import { prisma } from "@/lib/db";
+import { getUserProfileByEmail } from "@/lib/data/userProfile";
 
 export async function POST(req: Request) {
   const { email } = await req.json();
@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Email is required" }, { status: 400 });
   }
 
-  const existing = await prisma.userProfile.findUnique({ where: { email } });
+  const existing = await getUserProfileByEmail(email);
   if (!existing) {
     return NextResponse.json(
       { error: "No account found with that email address." },

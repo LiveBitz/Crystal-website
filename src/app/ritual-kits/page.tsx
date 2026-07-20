@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { prisma } from "@/lib/db";
+import { listProducts } from "@/lib/data/products";
 import ProductGrid from "@/components/ProductGrid";
 import { chunk } from "@/lib/utils";
 import { formatProduct } from "@/lib/products";
@@ -16,10 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RitualKitsPage() {
-  const kits = await prisma.product.findMany({
-    where: { isRitualKit: true, active: true },
-    orderBy: { order: "asc" },
-  });
+  const kits = await listProducts({ isRitualKit: true, activeOnly: true });
 
   const pages = chunk(kits.map(formatProduct), 4);
   const { data: session } = await auth.getSession();

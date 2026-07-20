@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { prisma } from "@/lib/db";
+import { listHeroSlides } from "@/lib/data/hero";
 import DeleteForm from "@/components/admin/DeleteForm";
 import { deleteHeroSlide } from "./actions";
 
 export default async function HeroSlidesPage() {
-  const slides = await prisma.heroSlide.findMany({ orderBy: { order: "asc" } });
+  const slides = await listHeroSlides();
 
   return (
     <div>

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { createTestimonialRow, deleteTestimonialRow, updateTestimonialRow } from "@/lib/data/testimonials";
 
 function readForm(formData: FormData) {
   return {
@@ -18,7 +18,7 @@ function readForm(formData: FormData) {
 export async function createTestimonial(formData: FormData) {
   const data = readForm(formData);
   if (!data.name || !data.quote) throw new Error("Name and quote are required");
-  await prisma.testimonial.create({ data });
+  await createTestimonialRow(data);
   revalidatePath("/crystal171admin/testimonials");
   revalidatePath("/");
   redirect("/crystal171admin/testimonials");
@@ -26,14 +26,14 @@ export async function createTestimonial(formData: FormData) {
 
 export async function updateTestimonial(id: string, formData: FormData) {
   const data = readForm(formData);
-  await prisma.testimonial.update({ where: { id }, data });
+  await updateTestimonialRow(id, data);
   revalidatePath("/crystal171admin/testimonials");
   revalidatePath("/");
   redirect("/crystal171admin/testimonials");
 }
 
 export async function deleteTestimonial(id: string) {
-  await prisma.testimonial.delete({ where: { id } });
+  await deleteTestimonialRow(id);
   revalidatePath("/crystal171admin/testimonials");
   revalidatePath("/");
 }
