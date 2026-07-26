@@ -1,4 +1,4 @@
-import { BadgeCheck, ShieldCheck, Star } from "lucide-react";
+import { BadgeCheck, Gem, ShieldCheck, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -150,6 +150,13 @@ export default async function ProductPage({
                 </div>
                 <span className="text-sm text-foreground/60">({product.reviews} reviews)</span>
               </div>
+
+              {product.beadSize && (
+                <div className="flex items-center gap-2 text-sm text-foreground/70">
+                  <Gem size={16} className="shrink-0 text-primary" />
+                  Bead size: <span className="font-semibold text-foreground">{product.beadSize}</span>
+                </div>
+              )}
 
               <div className="flex items-baseline gap-3">
                 <span className="font-serif text-3xl font-bold text-primary">

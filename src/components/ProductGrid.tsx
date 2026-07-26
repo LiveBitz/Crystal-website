@@ -97,6 +97,12 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
                 {product.name}
               </p>
 
+              {product.beadSize && (
+                <p className="text-xs font-medium text-foreground/60">
+                  Bead Size: <span className="text-primary">{product.beadSize}</span>
+                </p>
+              )}
+
               <div className="flex items-baseline gap-2 pt-0.5">
                 <span className="font-serif text-xl font-bold text-primary">{product.price}</span>
                 {product.originalPrice && (

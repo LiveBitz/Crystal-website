@@ -14,6 +14,7 @@ export type Product = {
   discountPercent: number | null;
   rating: number;
   reviews: number;
+  beadSize: string | null;
 };
 
 export function formatProduct(p: ProductRow): Product {
@@ -33,5 +34,6 @@ export function formatProduct(p: ProductRow): Product {
     discountPercent,
     rating: p.rating,
     reviews: p.reviews,
+    beadSize: p.beadSize,
   };
 }

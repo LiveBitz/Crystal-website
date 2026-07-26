@@ -2,6 +2,15 @@ import { d1Exec, d1Id, d1Query, d1QueryFirst, fromBool, toBool } from "@/lib/d1"
 
 export type ProductSection = "BESTSELLER" | "NEW_ARRIVAL";
 
+// Admins may type a bare number ("2") instead of a unit ("2mm") — always
+// show the unit so customers aren't left guessing what the number means.
+export function normalizeBeadSize(value: string | null): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  return /mm\b/i.test(trimmed) ? trimmed : `${trimmed}mm`;
+}
+
 export type ProductRow = {
   id: string;
   name: string;
@@ -16,6 +25,7 @@ export type ProductRow = {
   order: number;
   active: boolean;
   isRitualKit: boolean;
+  beadSize: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -108,13 +118,14 @@ export type ProductInput = {
   order: number;
   active: boolean;
   isRitualKit?: boolean;
+  beadSize: string | null;
 };
 
 export async function createProductRow(data: ProductInput & { slug: string }): Promise<void> {
   await d1Exec(
     `INSERT INTO Product
-      (id, name, slug, description, imageUrl, price, originalPrice, rating, reviews, section, "order", active, isRitualKit)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (id, name, slug, description, imageUrl, price, originalPrice, rating, reviews, section, "order", active, isRitualKit, beadSize)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       d1Id(),
       data.name,
@@ -129,6 +140,7 @@ export async function createProductRow(data: ProductInput & { slug: string }): P
       data.order,
       fromBool(data.active),
       fromBool(data.isRitualKit ?? false),
+      data.beadSize,
     ],
   );
 }
@@ -137,11 +149,11 @@ export async function createProductRow(data: ProductInput & { slug: string }): P
 export async function updateProductRow(id: string, data: ProductInput): Promise<ProductRow | null> {
   const sets: string[] = [
     "name = ?", "description = ?", "imageUrl = ?", "price = ?", "originalPrice = ?",
-    "rating = ?", "reviews = ?", "section = ?", `"order" = ?`, "active = ?",
+    "rating = ?", "reviews = ?", "section = ?", `"order" = ?`, "active = ?", "beadSize = ?",
   ];
   const params: unknown[] = [
     data.name, data.description, data.imageUrl, data.price, data.originalPrice,
-    data.rating, data.reviews, data.section, data.order, fromBool(data.active),
+    data.rating, data.reviews, data.section, data.order, fromBool(data.active), data.beadSize,
   ];
 
   if (data.isRitualKit !== undefined) {

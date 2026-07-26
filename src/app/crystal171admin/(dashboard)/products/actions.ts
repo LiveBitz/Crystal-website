@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createProductRow, deleteProductRow, productSlugExists, updateProductRow } from "@/lib/data/products";
+import { createProductRow, deleteProductRow, normalizeBeadSize, productSlugExists, updateProductRow } from "@/lib/data/products";
 import { generateUniqueSlug } from "@/lib/slug";
 import type { ProductSection } from "@/lib/data/products";
 
@@ -20,6 +20,7 @@ function readForm(formData: FormData) {
     section: formData.get("section")?.toString() as ProductSection,
     order: Number(formData.get("order") ?? 0),
     active: formData.get("active") === "on",
+    beadSize: normalizeBeadSize(formData.get("beadSize")?.toString() ?? null),
   };
 }
 

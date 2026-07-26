@@ -16,7 +16,7 @@ const navLinks = [
   { label: "Shop By Purpose", href: "/#shop-by-purpose" },
   { label: "Combo", href: "/#combo-products" },
   { label: "Ritual Kits", href: "/ritual-kits" },
-  { label: "About Us", href: "/" },
+  { label: "About Us", href: "/about-us" },
   { label: "Contact us", href: "/" },
 ];
 

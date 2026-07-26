@@ -6,7 +6,7 @@ const quickLinks = [
   { label: "Home", href: "/" },
   { label: "Shop", href: "/" },
   { label: "Ritual Kits", href: "/ritual-kits" },
-  { label: "About Us", href: "/" },
+  { label: "About Us", href: "/about-us" },
   { label: "Contact Us", href: "/" },
 ];
 

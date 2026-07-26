@@ -11,6 +11,7 @@ type Defaults = {
   section: string;
   order: number;
   active: boolean;
+  beadSize: string | null;
 };
 
 export default function ProductForm({
@@ -68,6 +69,22 @@ export default function ProductForm({
           <option value="BESTSELLER">Bestselling Products</option>
           <option value="NEW_ARRIVAL">New Arrivals</option>
         </select>
+      </div>
+
+      <div>
+        <label htmlFor="beadSize" className="text-sm font-medium text-foreground">
+          Bead size (mm)
+        </label>
+        <input
+          id="beadSize"
+          name="beadSize"
+          defaultValue={defaultValues?.beadSize ?? ""}
+          placeholder="e.g. 6mm or 4mm - 6mm"
+          className="mt-1.5 w-full rounded-md border border-sage-200 px-3 py-2 text-sm focus:border-primary focus:outline-none"
+        />
+        <p className="mt-1 text-xs text-foreground/50">
+          Leave blank to hide bead size on the product card and product page.
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
