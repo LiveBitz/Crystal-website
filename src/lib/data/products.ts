@@ -1,15 +1,7 @@
 import { d1Exec, d1Id, d1Query, d1QueryFirst, fromBool, toBool } from "@/lib/d1";
+import { getVariantsForProduct, getVariantsForProducts, type ProductVariantRow } from "@/lib/data/productVariants";
 
 export type ProductSection = "BESTSELLER" | "NEW_ARRIVAL";
-
-// Admins may type a bare number ("2") instead of a unit ("2mm") — always
-// show the unit so customers aren't left guessing what the number means.
-export function normalizeBeadSize(value: string | null): string | null {
-  if (!value) return null;
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  return /mm\b/i.test(trimmed) ? trimmed : `${trimmed}mm`;
-}
 
 export type ProductRow = {
   id: string;
@@ -25,21 +17,19 @@ export type ProductRow = {
   order: number;
   active: boolean;
   isRitualKit: boolean;
-  beadSize: string | null;
+  variants: ProductVariantRow[];
   createdAt: string;
   updatedAt: string;
 };
 
-export type RawProductRow = Omit<ProductRow, "active" | "isRitualKit"> & {
+type RawProductRow = Omit<ProductRow, "active" | "isRitualKit" | "variants"> & {
   active: number;
   isRitualKit: number;
 };
 
-export function mapProductRow(row: RawProductRow): ProductRow {
-  return { ...row, active: toBool(row.active), isRitualKit: toBool(row.isRitualKit) };
+function mapRow(row: RawProductRow, variants: ProductVariantRow[] = []): ProductRow {
+  return { ...row, active: toBool(row.active), isRitualKit: toBool(row.isRitualKit), variants };
 }
-
-const mapRow = mapProductRow;
 
 export async function listProducts(
   opts: {
@@ -70,12 +60,14 @@ export async function listProducts(
 
   const sql = `SELECT * FROM Product ${where.length ? `WHERE ${where.join(" AND ")}` : ""} ORDER BY section ASC, "order" ASC`;
   const rows = await d1Query<RawProductRow>(sql, params);
-  return rows.map(mapRow);
+  const variantsByProduct = await getVariantsForProducts(rows.map((r) => r.id));
+  return rows.map((row) => mapRow(row, variantsByProduct[row.id] ?? []));
 }
 
 export async function getProductById(id: string): Promise<ProductRow | null> {
   const row = await d1QueryFirst<RawProductRow>(`SELECT * FROM Product WHERE id = ?`, [id]);
-  return row ? mapRow(row) : null;
+  if (!row) return null;
+  return mapRow(row, await getVariantsForProduct(id));
 }
 
 export async function getProductBySlugRaw(slug: string): Promise<ProductRow | null> {
@@ -83,7 +75,8 @@ export async function getProductBySlugRaw(slug: string): Promise<ProductRow | nu
     `SELECT * FROM Product WHERE slug = ? AND active = 1`,
     [slug],
   );
-  return row ? mapRow(row) : null;
+  if (!row) return null;
+  return mapRow(row, await getVariantsForProduct(row.id));
 }
 
 export async function productSlugExists(slug: string): Promise<boolean> {
@@ -100,10 +93,11 @@ export async function getActiveProductsByIds(ids: string[]): Promise<ProductRow[
   if (ids.length === 0) return [];
   const placeholders = ids.map(() => "?").join(", ");
   const rows = await d1Query<RawProductRow>(
-    `SELECT * FROM Product WHERE id IN (${placeholders}) AND active = 1`,
+    `SELECT * FROM Product WHERE id IN (${placeholders}) AND active = 1 ORDER BY section ASC, "order" ASC`,
     ids,
   );
-  return rows.map(mapRow);
+  const variantsByProduct = await getVariantsForProducts(rows.map((r) => r.id));
+  return rows.map((row) => mapRow(row, variantsByProduct[row.id] ?? []));
 }
 
 export type ProductInput = {
@@ -118,16 +112,17 @@ export type ProductInput = {
   order: number;
   active: boolean;
   isRitualKit?: boolean;
-  beadSize: string | null;
 };
 
-export async function createProductRow(data: ProductInput & { slug: string }): Promise<void> {
+/** Returns the new product's id. */
+export async function createProductRow(data: ProductInput & { slug: string }): Promise<string> {
+  const id = d1Id();
   await d1Exec(
     `INSERT INTO Product
-      (id, name, slug, description, imageUrl, price, originalPrice, rating, reviews, section, "order", active, isRitualKit, beadSize)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (id, name, slug, description, imageUrl, price, originalPrice, rating, reviews, section, "order", active, isRitualKit)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
-      d1Id(),
+      id,
       data.name,
       data.slug,
       data.description,
@@ -140,20 +135,20 @@ export async function createProductRow(data: ProductInput & { slug: string }): P
       data.order,
       fromBool(data.active),
       fromBool(data.isRitualKit ?? false),
-      data.beadSize,
     ],
   );
+  return id;
 }
 
 /** Partial update — only columns present in `data` are touched (mirrors Prisma's update semantics). */
 export async function updateProductRow(id: string, data: ProductInput): Promise<ProductRow | null> {
   const sets: string[] = [
     "name = ?", "description = ?", "imageUrl = ?", "price = ?", "originalPrice = ?",
-    "rating = ?", "reviews = ?", "section = ?", `"order" = ?`, "active = ?", "beadSize = ?",
+    "rating = ?", "reviews = ?", "section = ?", `"order" = ?`, "active = ?",
   ];
   const params: unknown[] = [
     data.name, data.description, data.imageUrl, data.price, data.originalPrice,
-    data.rating, data.reviews, data.section, data.order, fromBool(data.active), data.beadSize,
+    data.rating, data.reviews, data.section, data.order, fromBool(data.active),
   ];
 
   if (data.isRitualKit !== undefined) {
@@ -172,6 +167,7 @@ export async function deleteProductRow(id: string): Promise<ProductRow | null> {
   const existing = await getProductById(id);
   if (!existing) return null;
   await d1Exec(`DELETE FROM ProductCategory WHERE productId = ?`, [id]);
+  await d1Exec(`DELETE FROM ProductVariant WHERE productId = ?`, [id]);
   await d1Exec(`DELETE FROM Product WHERE id = ?`, [id]);
   return existing;
 }

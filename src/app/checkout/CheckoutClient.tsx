@@ -78,15 +78,16 @@ export default function CheckoutClient({
     message += `*Order Items:*\n`;
     
     items.forEach(item => {
-      message += `- ${item.quantity}x ${item.product.name} (${item.product.price})\n`;
+      const sizeLabel = item.selectedSize ? ` (${item.selectedSize})` : "";
+      message += `- ${item.quantity}x ${item.product.name}${sizeLabel} (${item.product.price})\n`;
     });
-    
+
     message += `\n*Total Amount:* Rs. ${total.toLocaleString('en-IN')}\n`;
     message += `\nPlease confirm my order!`;
 
     const encodedMessage = encodeURIComponent(message);
     const waUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-    
+
     // Prepare payload
     const orderItems = items.map(item => {
       const match = item.product.price.match(/[\d,]+(\.\d+)?/);
@@ -94,7 +95,8 @@ export default function CheckoutClient({
       return {
         productId: item.product.id,
         quantity: item.quantity,
-        priceAtTime: numPrice
+        priceAtTime: numPrice,
+        variantSize: item.selectedSize ?? null,
       };
     });
 
@@ -171,12 +173,17 @@ export default function CheckoutClient({
           <h2 className="mb-6 font-serif text-xl font-semibold text-foreground">Order Summary</h2>
           <ul className="space-y-4 mb-6">
             {items.map(item => (
-              <li key={item.product.id} className="flex gap-4 border-b border-sage-100 pb-4 last:border-0 last:pb-0">
+              <li key={`${item.product.id}-${item.selectedSize ?? ""}`} className="flex gap-4 border-b border-sage-100 pb-4 last:border-0 last:pb-0">
                 <div className="relative h-16 w-16 shrink-0 rounded-md border border-sage-100 bg-sage-50 overflow-hidden">
                   {item.product.imageUrl && <Image src={item.product.imageUrl} alt={item.product.name} fill className="object-cover" />}
                 </div>
                 <div className="flex-1">
-                  <h3 className="line-clamp-2 text-sm font-medium text-foreground">{item.product.name}</h3>
+                  <h3 className="line-clamp-2 text-sm font-medium text-foreground">
+                    {item.product.name}
+                    {item.selectedSize && (
+                      <span className="text-foreground/50"> · {item.selectedSize}</span>
+                    )}
+                  </h3>
                   <p className="mt-1 text-xs text-foreground/60">Qty: {item.quantity}</p>
                   <p className="mt-1 font-semibold text-primary">{item.product.price}</p>
                 </div>

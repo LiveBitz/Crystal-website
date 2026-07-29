@@ -25,9 +25,9 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
   const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     setLoadingIds(prev => [...prev, product.id]);
-    
+
     // Check if user is logged in
     const res = await fetch("/api/auth/me");
     if (!res.ok) {
@@ -35,7 +35,21 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
       return;
     }
 
-    addItem(product);
+    // The grid has no size picker, so a variant product adds its first-
+    // listed size by default — with that variant's own price, not the base
+    // product price, so the cart never charges the wrong amount. The
+    // product id/name stay untouched; the size is tracked separately.
+    const defaultVariant = product.variants[0];
+    const cartProduct = defaultVariant
+      ? {
+          ...product,
+          price: defaultVariant.price,
+          originalPrice: defaultVariant.originalPrice,
+          discountPercent: defaultVariant.discountPercent,
+        }
+      : product;
+
+    addItem(cartProduct, defaultVariant?.size);
     
     setLoadingIds(prev => prev.filter(id => id !== product.id));
     setAddedIds(prev => [...prev, product.id]);
@@ -61,7 +75,11 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
         duration={0.7}
         className="mt-12 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mt-16 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden"
       >
-        {pages[page].map((product) => (
+        {pages[page].map((product) => {
+          const firstVariant = product.variants[0];
+          const cardPrice = firstVariant ? firstVariant.price : product.price;
+          const cardOriginalPrice = firstVariant ? firstVariant.originalPrice : product.originalPrice;
+          return (
           <div key={product.id} className="flex w-[78%] shrink-0 snap-start flex-col sm:w-auto sm:shrink">
             <Link
               href={`/product/${product.slug}`}
@@ -97,17 +115,30 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
                 {product.name}
               </p>
 
-              {product.beadSize && (
-                <p className="text-xs font-medium text-foreground/60">
-                  Bead Size: <span className="text-primary">{product.beadSize}</span>
-                </p>
+              {product.variants.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-xs font-medium text-foreground/60">Bead Size:</span>
+                  {product.variants.map((variant) => (
+                    <span
+                      key={variant.size}
+                      className="rounded-full border border-sage-200 bg-sage-50 px-2 py-0.5 text-[11px] font-semibold text-primary"
+                    >
+                      {variant.size}
+                    </span>
+                  ))}
+                </div>
               )}
 
               <div className="flex items-baseline gap-2 pt-0.5">
-                <span className="font-serif text-xl font-bold text-primary">{product.price}</span>
-                {product.originalPrice && (
+                {product.variants.length > 1 && (
+                  <span className="text-[11px] font-medium uppercase tracking-wide text-foreground/50">
+                    From
+                  </span>
+                )}
+                <span className="font-serif text-xl font-bold text-primary">{cardPrice}</span>
+                {cardOriginalPrice && (
                   <span className="text-sm text-foreground/40 line-through">
-                    {product.originalPrice}
+                    {cardOriginalPrice}
                   </span>
                 )}
               </div>
@@ -156,7 +187,8 @@ export default function ProductGrid({ pages }: { pages: Product[][] }) {
             </div>
             </Link>
           </div>
-        ))}
+          );
+        })}
       </RevealGroup>
 
       {pages.length > 1 && (

@@ -10,6 +10,7 @@ type OrderItem = {
   id: string;
   quantity: number;
   priceAtTime: number;
+  variantSize: string | null;
   product: { name: string; imageUrl: string | null };
 };
 
@@ -277,7 +278,12 @@ export default function ProfileClient({
                               <div className="h-12 w-12 rounded-md bg-sage-200" />
                             )}
                             <div>
-                              <p className="text-sm font-medium text-foreground">{item.product.name}</p>
+                              <p className="text-sm font-medium text-foreground">
+                                {item.product.name}
+                                {item.variantSize && (
+                                  <span className="text-foreground/50"> · {item.variantSize}</span>
+                                )}
+                              </p>
                               <p className="text-xs text-foreground/60">Qty: {item.quantity}</p>
                             </div>
                           </div>

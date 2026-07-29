@@ -17,10 +17,11 @@ export async function POST(req: Request) {
       userId,
       totalAmount,
       ...address,
-      items: items.map((item: { productId: string; quantity: number; priceAtTime: number }) => ({
+      items: items.map((item: { productId: string; quantity: number; priceAtTime: number; variantSize?: string | null }) => ({
         productId: item.productId,
         quantity: item.quantity,
         priceAtTime: item.priceAtTime,
+        variantSize: item.variantSize ?? null,
       })),
     });
 

@@ -6,6 +6,7 @@ export type OrderItemWithProduct = {
   productId: string;
   quantity: number;
   priceAtTime: number;
+  variantSize: string | null;
   product: { name: string; imageUrl: string | null };
 };
 
@@ -38,10 +39,11 @@ async function attachItems(orders: OrderRow[]): Promise<OrderWithItems[]> {
     productId: string;
     quantity: number;
     priceAtTime: number;
+    variantSize: string | null;
     productName: string;
     productImageUrl: string | null;
   }>(
-    `SELECT oi.id, oi.orderId, oi.productId, oi.quantity, oi.priceAtTime,
+    `SELECT oi.id, oi.orderId, oi.productId, oi.quantity, oi.priceAtTime, oi.variantSize,
             p.name as productName, p.imageUrl as productImageUrl
      FROM OrderItem oi JOIN Product p ON p.id = oi.productId
      WHERE oi.orderId IN (${placeholders})`,
@@ -56,6 +58,7 @@ async function attachItems(orders: OrderRow[]): Promise<OrderWithItems[]> {
       productId: row.productId,
       quantity: row.quantity,
       priceAtTime: row.priceAtTime,
+      variantSize: row.variantSize,
       product: { name: row.productName, imageUrl: row.productImageUrl },
     };
     const list = byOrder.get(row.orderId) ?? [];
@@ -110,7 +113,7 @@ export type CreateOrderInput = {
   state?: string | null;
   postalCode?: string | null;
   country?: string | null;
-  items: { productId: string; quantity: number; priceAtTime: number }[];
+  items: { productId: string; quantity: number; priceAtTime: number; variantSize?: string | null }[];
 };
 
 export async function createOrderRow(data: CreateOrderInput): Promise<string> {
@@ -127,8 +130,8 @@ export async function createOrderRow(data: CreateOrderInput): Promise<string> {
       ],
     },
     ...data.items.map((item) => ({
-      sql: `INSERT INTO OrderItem (id, orderId, productId, quantity, priceAtTime) VALUES (?, ?, ?, ?, ?)`,
-      params: [d1Id(), id, item.productId, item.quantity, item.priceAtTime],
+      sql: `INSERT INTO OrderItem (id, orderId, productId, quantity, priceAtTime, variantSize) VALUES (?, ?, ?, ?, ?, ?)`,
+      params: [d1Id(), id, item.productId, item.quantity, item.priceAtTime, item.variantSize ?? null],
     })),
   ]);
   return id;

@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createProductRow, deleteProductRow, normalizeBeadSize, productSlugExists, updateProductRow } from "@/lib/data/products";
+import { createProductRow, deleteProductRow, productSlugExists, updateProductRow } from "@/lib/data/products";
+import { setProductVariants } from "@/lib/data/productVariants";
+import { normalizeBeadSize } from "@/lib/beadSize";
 import { generateUniqueSlug } from "@/lib/slug";
 import type { ProductSection } from "@/lib/data/products";
 
@@ -20,8 +22,24 @@ function readForm(formData: FormData) {
     section: formData.get("section")?.toString() as ProductSection,
     order: Number(formData.get("order") ?? 0),
     active: formData.get("active") === "on",
-    beadSize: normalizeBeadSize(formData.get("beadSize")?.toString() ?? null),
   };
+}
+
+function readVariants(formData: FormData) {
+  const sizes = formData.getAll("variantSize").map((v) => v.toString());
+  const prices = formData.getAll("variantPrice").map((v) => v.toString());
+  const originalPrices = formData.getAll("variantOriginalPrice").map((v) => v.toString());
+
+  return sizes
+    .map((size, i) => ({
+      size: normalizeBeadSize(size),
+      price: prices[i] ? Number(prices[i]) : NaN,
+      originalPrice: originalPrices[i] ? Number(originalPrices[i]) : null,
+    }))
+    .filter(
+      (v): v is { size: string; price: number; originalPrice: number | null } =>
+        v.size !== null && !Number.isNaN(v.price),
+    );
 }
 
 export async function createProduct(formData: FormData) {
@@ -30,7 +48,8 @@ export async function createProduct(formData: FormData) {
 
   const slug = await generateUniqueSlug(data.name, productSlugExists);
 
-  await createProductRow({ ...data, slug });
+  const id = await createProductRow({ ...data, slug });
+  await setProductVariants(id, readVariants(formData));
   revalidatePath("/crystal171admin/products");
   revalidatePath("/");
   redirect("/crystal171admin/products");
@@ -39,6 +58,7 @@ export async function createProduct(formData: FormData) {
 export async function updateProduct(id: string, formData: FormData) {
   const data = readForm(formData);
   const product = await updateProductRow(id, data);
+  await setProductVariants(id, readVariants(formData));
   revalidatePath("/crystal171admin/products");
   revalidatePath("/");
   if (product) revalidatePath(`/product/${product.slug}`);

@@ -1,4 +1,5 @@
 import ImageUploader from "@/components/admin/ImageUploader";
+import VariantsEditor from "@/components/admin/VariantsEditor";
 
 type Defaults = {
   name: string;
@@ -11,7 +12,7 @@ type Defaults = {
   section: string;
   order: number;
   active: boolean;
-  beadSize: string | null;
+  variants: { size: string; price: number; originalPrice: number | null }[];
 };
 
 export default function ProductForm({
@@ -71,26 +72,12 @@ export default function ProductForm({
         </select>
       </div>
 
-      <div>
-        <label htmlFor="beadSize" className="text-sm font-medium text-foreground">
-          Bead size (mm)
-        </label>
-        <input
-          id="beadSize"
-          name="beadSize"
-          defaultValue={defaultValues?.beadSize ?? ""}
-          placeholder="e.g. 6mm or 4mm - 6mm"
-          className="mt-1.5 w-full rounded-md border border-sage-200 px-3 py-2 text-sm focus:border-primary focus:outline-none"
-        />
-        <p className="mt-1 text-xs text-foreground/50">
-          Leave blank to hide bead size on the product card and product page.
-        </p>
-      </div>
+      <VariantsEditor defaultVariants={defaultValues?.variants} />
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="price" className="text-sm font-medium text-foreground">
-            Price (₹)
+            Base price (₹)
           </label>
           <input
             id="price"
@@ -100,10 +87,13 @@ export default function ProductForm({
             defaultValue={defaultValues?.price}
             className="mt-1.5 w-full rounded-md border border-sage-200 px-3 py-2 text-sm focus:border-primary focus:outline-none"
           />
+          <p className="mt-1 text-xs text-foreground/50">
+            Used on the product card and detail page. Ignored once size variants above are added.
+          </p>
         </div>
         <div>
           <label htmlFor="originalPrice" className="text-sm font-medium text-foreground">
-            Original price (₹)
+            Base original price (₹)
           </label>
           <input
             id="originalPrice"

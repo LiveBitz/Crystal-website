@@ -1,4 +1,4 @@
-import ProductForm from "../ProductForm";
+import ProductForm from "@/components/admin/ProductForm";
 import { createRitualKit } from "../actions";
 
 export default function NewRitualKitPage() {

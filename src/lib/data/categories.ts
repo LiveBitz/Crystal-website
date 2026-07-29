@@ -1,5 +1,5 @@
 import { d1Batch, d1Id, d1Query, d1QueryFirst, fromBool, toBool } from "@/lib/d1";
-import { mapProductRow, type ProductRow, type RawProductRow } from "@/lib/data/products";
+import { getActiveProductsByIds, type ProductRow } from "@/lib/data/products";
 
 export type Category = {
   id: string;
@@ -58,14 +58,8 @@ export async function getProductIdsForCategory(categoryId: string): Promise<stri
 }
 
 export async function getActiveProductsForCategory(categoryId: string): Promise<ProductRow[]> {
-  const rows = await d1Query<RawProductRow>(
-    `SELECT p.* FROM Product p
-     JOIN ProductCategory pc ON pc.productId = p.id
-     WHERE pc.categoryId = ? AND p.active = 1
-     ORDER BY p.section ASC, p."order" ASC`,
-    [categoryId],
-  );
-  return rows.map(mapProductRow);
+  const productIds = await getProductIdsForCategory(categoryId);
+  return getActiveProductsByIds(productIds);
 }
 
 type CategoryInput = {

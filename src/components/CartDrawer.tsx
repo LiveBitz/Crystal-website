@@ -70,11 +70,11 @@ export default function CartDrawer({ isLoggedIn }: { isLoggedIn: boolean }) {
           ) : (
             <ul className="space-y-6">
               {items.map((item) => (
-                <li key={item.product.id} className="flex gap-4">
+                <li key={`${item.product.id}-${item.selectedSize ?? ""}`} className="flex gap-4">
                   <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-sage-100 bg-sage-50">
                     {item.product.imageUrl && (
-                      <Image 
-                        src={item.product.imageUrl} 
+                      <Image
+                        src={item.product.imageUrl}
                         alt={item.product.name}
                         fill
                         className="object-cover"
@@ -85,27 +85,30 @@ export default function CartDrawer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     <div className="flex justify-between">
                       <h3 className="line-clamp-2 text-sm font-medium text-foreground">
                         {item.product.name}
+                        {item.selectedSize && (
+                          <span className="text-foreground/50"> · {item.selectedSize}</span>
+                        )}
                       </h3>
-                      <button 
-                        onClick={() => removeItem(item.product.id)}
+                      <button
+                        onClick={() => removeItem(item.product.id, item.selectedSize)}
                         className="ml-2 text-foreground/40 hover:text-red-500"
                       >
                         <X size={16} />
                       </button>
                     </div>
                     <p className="mt-1 font-serif font-bold text-primary">{item.product.price}</p>
-                    
+
                     <div className="mt-auto flex items-center gap-3">
                       <div className="flex items-center rounded-lg border border-sage-200">
-                        <button 
-                          onClick={() => updateQuantity(item.product.id, Math.max(1, item.quantity - 1))}
+                        <button
+                          onClick={() => updateQuantity(item.product.id, Math.max(1, item.quantity - 1), item.selectedSize)}
                           className="flex h-8 w-8 items-center justify-center text-foreground hover:bg-sage-50"
                         >
                           <Minus size={14} />
                         </button>
                         <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
-                        <button 
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                        <button
+                          onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.selectedSize)}
                           className="flex h-8 w-8 items-center justify-center text-foreground hover:bg-sage-50"
                         >
                           <Plus size={14} />

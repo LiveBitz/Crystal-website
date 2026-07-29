@@ -97,7 +97,10 @@ export default async function AdminOrdersPage({
                   <div className="space-y-3 rounded-xl bg-sage-50 p-4">
                     {order.items.map(item => (
                       <div key={item.id} className="flex justify-between text-sm">
-                        <span className="text-foreground/80">{item.quantity}x {item.product.name}</span>
+                        <span className="text-foreground/80">
+                          {item.quantity}x {item.product.name}
+                          {item.variantSize && ` (${item.variantSize})`}
+                        </span>
                         <span className="font-medium">Rs. {(item.priceAtTime * item.quantity).toLocaleString("en-IN")}</span>
                       </div>
                     ))}

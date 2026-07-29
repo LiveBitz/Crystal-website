@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getProductById } from "@/lib/data/products";
-import ProductForm from "../ProductForm";
+import ProductForm from "@/components/admin/ProductForm";
 import { updateRitualKit } from "../actions";
 
 export default async function EditRitualKitPage({

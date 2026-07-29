@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, ShoppingBag, Check } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Check, Gem } from "lucide-react";
 import { useState } from "react";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { useCart } from "@/lib/cart";
@@ -14,6 +14,8 @@ export default function ProductActions({
   product: Product;
   whatsappNumber: string;
 }) {
+  const hasVariants = product.variants.length > 0;
+  const [selectedVariant, setSelectedVariant] = useState(product.variants[0] ?? null);
   const [quantity, setQuantity] = useState(1);
   const configured = whatsappNumber.trim().length > 0;
   const { addItem } = useCart();
@@ -22,10 +24,14 @@ export default function ProductActions({
   const [added, setAdded] = useState(false);
   const [bursts, setBursts] = useState<number[]>([]);
 
+  const displayPrice = selectedVariant ? selectedVariant.price : product.price;
+  const displayOriginalPrice = selectedVariant ? selectedVariant.originalPrice : product.originalPrice;
+
+  const sizeSuffix = selectedVariant ? ` in ${selectedVariant.size}` : "";
   const contactHref = configured
     ? buildWhatsAppLink(
         whatsappNumber,
-        `Hi! I'm interested in the ${product.name} (${product.price}). Could you share more details?`,
+        `Hi! I'm interested in the ${product.name}${sizeSuffix} (${displayPrice}). Could you share more details?`,
       )
     : undefined;
 
@@ -39,13 +45,27 @@ export default function ProductActions({
       return;
     }
 
+    // Variants carry their own price, so the cart line for a size-specific
+    // add must reflect that variant's price, not the base product's —
+    // otherwise the cart could silently charge the wrong amount. The
+    // product id/name stay untouched (still the real product) and the size
+    // is tracked separately so checkout/orders can still resolve it.
+    const cartProduct = selectedVariant
+      ? {
+          ...product,
+          price: selectedVariant.price,
+          originalPrice: selectedVariant.originalPrice,
+          discountPercent: selectedVariant.discountPercent,
+        }
+      : product;
+
     for (let i = 0; i < quantity; i++) {
-      addItem(product);
+      addItem(cartProduct, selectedVariant?.size);
     }
-    
+
     setLoading(false);
     setAdded(true);
-    
+
     // Trigger magic burst
     const burstId = Date.now();
     setBursts((prev) => [...prev, burstId]);
@@ -58,6 +78,39 @@ export default function ProductActions({
 
   return (
     <div className="flex flex-col gap-3">
+      <div className="flex items-baseline gap-3">
+        <span className="font-serif text-3xl font-bold text-primary">{displayPrice}</span>
+        {displayOriginalPrice && (
+          <span className="text-lg text-foreground/40 line-through">{displayOriginalPrice}</span>
+        )}
+      </div>
+
+      {hasVariants && (
+        <div>
+          <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-foreground/60">
+            <Gem size={14} className="text-primary" />
+            Bead Size
+          </p>
+          <div className="mt-1.5 flex flex-wrap gap-2">
+            {product.variants.map((variant) => (
+              <button
+                key={variant.size}
+                type="button"
+                onClick={() => setSelectedVariant(variant)}
+                aria-pressed={selectedVariant?.size === variant.size}
+                className={`rounded-md border px-4 py-2 text-sm font-semibold transition-colors ${
+                  selectedVariant?.size === variant.size
+                    ? "border-primary bg-primary text-gold-light"
+                    : "border-sage-200 text-foreground/70 hover:border-primary/50"
+                }`}
+              >
+                {variant.size}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">
           Quantity
